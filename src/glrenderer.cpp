@@ -5,6 +5,7 @@
 #include "src/shaderloader.h"
 
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <glm/gtc/type_ptr.hpp>
 #include "glm/gtx/transform.hpp"
 
@@ -20,6 +21,13 @@ GLRenderer::GLRenderer(QWidget *parent)
       m_zoom(2)
 {
     rebuildMatrices();
+    setFocusPolicy(Qt::StrongFocus);
+    m_keyMap[Qt::Key_W]       = false;
+    m_keyMap[Qt::Key_A]       = false;
+    m_keyMap[Qt::Key_S]       = false;
+    m_keyMap[Qt::Key_D]       = false;
+    m_keyMap[Qt::Key_Control] = false;
+    m_keyMap[Qt::Key_Space]   = false;
 }
 
 GLRenderer::~GLRenderer()
@@ -179,6 +187,25 @@ void GLRenderer::mouseMoveEvent(QMouseEvent *event) {
     rebuildMatrices();
 }
 
+void GLRenderer::keyPressEvent(QKeyEvent *event) {
+    m_keyMap[Qt::Key(event->key())] = true;
+    std::cout << "Key:" << event->key() << " is pressed." << std::endl;
+}
+
+void GLRenderer::keyReleaseEvent(QKeyEvent *event) {
+    m_keyMap[Qt::Key(event->key())] = false;
+}
+
+void GLRenderer::timerEvent(QTimerEvent *event) {
+    int elapsedms   = m_elapsedTimer.elapsed();
+    float deltaTime = elapsedms * 0.001f;
+    m_elapsedTimer.restart();
+
+    // Use deltaTime and m_keyMap here to move around
+
+    update(); // asks for a PaintGL() call to occur
+}
+
 void GLRenderer::wheelEvent(QWheelEvent *event) {
     // Update zoom based on event parameter
     m_zoom -= event->angleDelta().y() / 1000.f;
@@ -189,6 +216,7 @@ void GLRenderer::rebuildMatrices() {
     // Update view matrix by rotating eye vector based on x and y angles
     m_view = glm::mat4(1);
     glm::mat4 rot = glm::rotate(glm::radians(-10 * m_angleX),glm::vec3(0,0,1));
+
     glm::vec3 eye = glm::vec3(2,0,0);
     eye = glm::vec3(rot * glm::vec4(eye,1));
 

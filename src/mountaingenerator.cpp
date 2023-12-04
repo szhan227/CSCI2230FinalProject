@@ -12,7 +12,7 @@ MountainGenerator::MountainGenerator()
     m_wireshade = false; // TA SOLUTION
 
     // Define resolution of Mountain generation
-    m_resolution = 100;
+    m_resolution = 500;
 
     // Generate random vector lookup table
     m_lookupSize = 1024;
@@ -114,9 +114,19 @@ glm::vec2 MountainGenerator::sampleRandomVector(int row, int col)
 glm::vec3 MountainGenerator::getPosition(int row, int col) {
     // Normalizing the planar coordinates to a unit square
     // makes scaling independent of sampling resolution.
-    float x = 1.0 * row / m_resolution;
-    float y = 1.0 * col / m_resolution;
-    float z = getHeight(x, y);
+
+    int scale = 10;
+    float center = scale / 2.f;
+    float x = 1.f * scale * row / m_resolution;
+    float y = 1.f * scale * col / m_resolution;
+
+    float z;
+    z = getHeight(x, y);
+    float distance = std::sqrt((x - center) * (x - center) + (y - center) * (y - center));
+    if(distance <= 3.f){
+        float coef = (distance * distance / 9.f);
+        z *= coef;
+    }
     return glm::vec3(x,y,z);
 }
 

@@ -6,6 +6,7 @@
 #endif
 
 #include "GL/glew.h" // Must always be first include
+#include <QElapsedTimer>
 #include <QOpenGLWidget>
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
@@ -28,9 +29,19 @@ protected:
     void mousePressEvent(QMouseEvent *e) override; // Used for camera movement
     void mouseMoveEvent(QMouseEvent *e)  override; // Used for camera movement
     void wheelEvent(QWheelEvent *e)      override; // Used for camera movement
+
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void timerEvent(QTimerEvent *event) override;
+
     void rebuildMatrices();                        // Used for camera movement
 
 private:
+
+    int m_timer;                                        // Stores timer which attempts to run ~60 times per second
+    QElapsedTimer m_elapsedTimer;
+    std::unordered_map<Qt::Key, bool> m_keyMap;         // Stores whether keys are pressed or not
+
     GLuint m_skyShader;
     GLuint m_sky_vbo;
     GLuint m_sky_vao;
@@ -42,6 +53,9 @@ private:
     glm::mat4 m_proj  = glm::mat4(1);
 
     glm::vec4 m_lightDir;
+
+    glm::vec4 cameraPosV = glm::vec4(0, 0, 0, 1);
+    glm::vec4 cameraPosW = glm::vec4(0, 0, 0, 1);
 
     float m_ka;
     float m_kd;
@@ -59,7 +73,7 @@ private:
     int m_yRot = 0;
     int m_zRot = 0;
 
-    glm::mat4 m_mountain_model_matrix = glm::mat4(1.f);
+    glm::mat4 m_mountain_model_matrix = glm::mat4(3.f);
 
     GLuint m_mountain_shader;
     GLuint  m_mountain_vao;
