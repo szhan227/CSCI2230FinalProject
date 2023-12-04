@@ -53,6 +53,10 @@ void GLRenderer::initializeGL()
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
+
+
+    // Create Mountains
+    initializeMountain();
 }
 
 void GLRenderer::paintGL()
@@ -83,7 +87,77 @@ void GLRenderer::paintGL()
     glBindVertexArray(0);
 
     glUseProgram(0);
+
+    // paint the mountain
+    paintMountain();
 }
+
+
+// ============= helper functions for mountain ==============
+
+// --- call this in initializeGL to initialize mountain related components
+void GLRenderer::initializeMountain(){
+    m_mountain_shader = ShaderLoader::createShaderProgram(":/resources/shaders/mountain.vert", ":/resources/shaders/mountain.frag");
+
+    glGenBuffers(1, &m_mountain_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_mountain_vbo);
+
+    m_mountain_verts = m_mountain_generator.generateMountain();
+
+    glBufferData(GL_ARRAY_BUFFER,m_mountain_verts.size() * sizeof(GLfloat),m_mountain_verts.data(), GL_STATIC_DRAW);
+    glGenVertexArrays(1, &m_mountain_vao);
+    glBindVertexArray(m_mountain_vao);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+                          nullptr);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+                          reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+                          reinterpret_cast<void *>(6 * sizeof(GLfloat)));
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+// --- call this in paintGL to paint mountain related components
+void GLRenderer::paintMountain(){
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindVertexArray(m_mountain_vao);
+
+    glUseProgram(m_mountain_shader);
+
+    glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "model"), 1, GL_FALSE, &m_sky_model[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "view"), 1, GL_FALSE, &m_view[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "projMatrix"), 1, GL_FALSE, &m_proj[0][0]);
+    glm::mat4 mvMatrix = m_view * m_mountain_model_matrix;
+    glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "mvMatrix"), 1, GL_FALSE, &mvMatrix[0][0]);
+
+    glUniform1f(glGetUniformLocation(m_mountain_shader, "ka"), m_ka);
+
+    glUniform4fv(glGetUniformLocation(m_mountain_shader, "lightDir"), 1, glm::value_ptr(m_lightDir));
+    glUniform1f(glGetUniformLocation(m_mountain_shader, "kd"), m_kd);
+
+    glm::mat4 invView = glm::inverse(m_view);
+    int res = m_mountain_generator.getResolution();
+
+    glUniform1f(glGetUniformLocation(m_mountain_shader, "ks"), m_ks);
+    glUniform1f(glGetUniformLocation(m_mountain_shader, "shininess"), m_shininess);
+    glUniform4fv(glGetUniformLocation(m_mountain_shader, "cameraPosition"), 1, glm::value_ptr(invView[3]));
+
+
+    glDrawArrays(GL_TRIANGLES, 0, res * res * 6);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glUseProgram(0);
+}
+
+// ============= end of functions for mountain ==============
 
 // ================== Other stencil code
 
@@ -107,7 +181,7 @@ void GLRenderer::mouseMoveEvent(QMouseEvent *event) {
 
 void GLRenderer::wheelEvent(QWheelEvent *event) {
     // Update zoom based on event parameter
-    m_zoom -= event->angleDelta().y() / 100.f;
+    m_zoom -= event->angleDelta().y() / 1000.f;
     rebuildMatrices();
 }
 

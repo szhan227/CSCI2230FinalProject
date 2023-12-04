@@ -32,6 +32,10 @@ add_executable(${PROJECT_NAME}
     src/mainwindow.h
     src/shaderloader.h
     src/utils/shape.h src/utils/shape.cpp
+
+    # mountain components
+    src/mountaingenerator.h
+    src/mountaingenerator.cpp
 )
 # Specifies other files
 qt_add_resources(${PROJECT_NAME} "Resources"
@@ -40,6 +44,10 @@ qt_add_resources(${PROJECT_NAME} "Resources"
   FILES
   resources/shaders/sky.vert
   resources/shaders/sky.frag
+
+  # mountain shaders
+  resources/shaders/mountain.vert
+  resources/shaders/mountain.frag
 )
 
 # GLEW: this creates its library and allows you to `#include "GL/glew.h"`

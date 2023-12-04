@@ -9,6 +9,8 @@
 #include <QOpenGLWidget>
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
+#include <QMatrix4x4>
+#include "src/mountaingenerator.h"
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
@@ -50,4 +52,25 @@ private:
     float  m_angleX;
     float  m_angleY;
     float  m_zoom;
+
+
+    // ------------------ Mountain Component start -------------------
+    int m_xRot = 0;
+    int m_yRot = 0;
+    int m_zRot = 0;
+
+    glm::mat4 m_mountain_model_matrix = glm::mat4(1.f);
+
+    GLuint m_mountain_shader;
+    GLuint  m_mountain_vao;
+    GLuint  m_mountain_vbo;
+
+    MountainGenerator m_mountain_generator;
+    std::vector<GLfloat> m_mountain_verts;
+
+    void initializeMountain();
+    void paintMountain();
+//    int m_projMatrixLoc = 0;
+//    int m_mvMatrixLoc = 0;
+    // ------------------ Mountain Component end ------------------
 };
