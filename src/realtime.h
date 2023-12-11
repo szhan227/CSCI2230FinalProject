@@ -6,6 +6,7 @@
 #endif
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include "camera/camera.h"
 
 #include <unordered_map>
 #include <QElapsedTimer>
@@ -37,6 +38,8 @@ private:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void timerEvent(QTimerEvent *event) override;
+    const Camera& getCamera() const;
+    glm::mat3 makeRodrigues(glm::vec3 axis, float angle);
 
     // Tick Related Variables
     int m_timer;                                        // Stores timer which attempts to run ~60 times per second
@@ -49,4 +52,7 @@ private:
 
     // Device Correction Variables
     int m_devicePixelRatio;
+
+    // Camera
+    Camera camera;
 };
