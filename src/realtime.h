@@ -67,9 +67,11 @@ private:
 
     // Device Correction Variables
     int m_devicePixelRatio;
+    float m_h=640.f;
+    float m_w=640.f;
 
     // Camera
-    Camera camera;
+    Camera m_camera;
 
     //TODO: add FBO, VAO, VBO, variables for each landscape component
 

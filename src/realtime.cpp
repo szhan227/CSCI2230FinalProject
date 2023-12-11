@@ -64,18 +64,29 @@ void Realtime::initializeGL() {
     glEnable(GL_CULL_FACE);
     // Tells OpenGL how big the screen is
     glViewport(0, 0, size().width() * m_devicePixelRatio, size().height() * m_devicePixelRatio);
+    m_w = size().width() * m_devicePixelRatio;
+    m_h = size().height() * m_devicePixelRatio;
 
     //TODO: Call individual initialize_{mountain, terrain, water, sky} functions here
     initSky();
     initWater();
     initTerrain();
     initMountain();
+
+    // set camera
+    SceneCameraData init_camera;
+    init_camera.pos = glm::vec4(-6.0, 4.0, 4.0, 1.0);
+    init_camera.look = glm::vec4(6.0, -4.0, -4.0, 0.0);
+    init_camera.up = glm::vec4(0.0, 1.0, 0.0, 0.0);
+    init_camera.heightAngle = glm::radians(30.f);
+    m_camera.set_Camera(init_camera);
 }
 
 void Realtime::paintGL() {
-    m_view = camera.getViewMatrix();
-    m_proj = camera.getPerspectiveMatrix();
+    m_view = m_camera.getViewMatrix();
+    m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 100.f);
     //TODO: Call individual paint_{mountain, terrain, water, sky} functions here
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     drawSky();
     drawWater();
     drawTerrain();
@@ -85,8 +96,9 @@ void Realtime::paintGL() {
 void Realtime::resizeGL(int w, int h) {
     // Tells OpenGL how big the screen is
     glViewport(0, 0, size().width() * m_devicePixelRatio, size().height() * m_devicePixelRatio);
-
-    //TODO: Support resizing the window
+    // Students: anything requiring OpenGL calls when the program starts should be done here
+    m_w = size().width() * m_devicePixelRatio;
+    m_h = size().height() * m_devicePixelRatio;
 }
 
 void Realtime::sceneChanged() {
@@ -122,22 +134,6 @@ void Realtime::mouseReleaseEvent(QMouseEvent *event) {
     }
 }
 
-glm::mat3 Realtime::makeRodrigues(glm::vec3 axis, float angle) {
-    glm::mat3 rodrigue = glm::mat3(1);
-
-    rodrigue[0][0] = glm::cos(angle) + (1 - glm::cos(angle)) * axis.x * axis.x;
-    rodrigue[0][1] = (1 - glm::cos(angle)) * axis.x * axis.y + glm::sin(angle) * axis.z;
-    rodrigue[0][2] = (1 - glm::cos(angle)) * axis.x * axis.z - glm::sin(angle) * axis.y;
-    rodrigue[1][0] = (1 - glm::cos(angle)) * axis.x * axis.y - glm::sin(angle) * axis.z;
-    rodrigue[1][1] = glm::cos(angle) + (1 - glm::cos(angle)) * axis.y * axis.y;
-    rodrigue[1][2] = (1 - glm::cos(angle)) * axis.y * axis.z + glm::sin(angle) * axis.x;
-    rodrigue[2][0] = (1 - glm::cos(angle)) * axis.x * axis.z + glm::sin(angle) * axis.y;
-    rodrigue[2][1] = (1 - glm::cos(angle)) * axis.y * axis.z - glm::sin(angle) * axis.x;
-    rodrigue[2][2] = glm::cos(angle) + (1 - glm::cos(angle)) * axis.z * axis.z;
-
-    return rodrigue;
-}
-
 void Realtime::mouseMoveEvent(QMouseEvent *event) {
     if (m_mouseDown) {
         int posX = event->position().x();
@@ -147,13 +143,26 @@ void Realtime::mouseMoveEvent(QMouseEvent *event) {
         m_prev_mouse_pos = glm::vec2(posX, posY);
 
         // Use deltaX and deltaY here to rotate
-        float rotation = 0.01 * deltaX;
-        glm::mat3 rodrigue = makeRodrigues(glm::vec3(0,1,0), rotation);
-        camera.setLook(glm::vec4(rodrigue * glm::vec3(camera.getLook()), 0.));
+        float theta_x = float(deltaX) / float(width());
+        float theta_y = float(deltaY) / float(height());
+        glm::mat3 R_x = glm::mat3{
+            cos(theta_x), 0.f, -sin(theta_x),
+            0.f         , 1.f,  0.f         ,
+            sin(theta_x), 0.f,  cos(theta_x)
+        };
 
-        rotation = 0.01 * deltaY;
-        rodrigue = makeRodrigues(glm::normalize(glm::cross(glm::vec3(camera.getLook()), glm::vec3(camera.getUp()))), rotation);
-        camera.setLook(glm::vec4(rodrigue * glm::vec3(camera.getLook()), 0.));
+        glm::vec3 camera_right = m_camera.get_right();
+        glm::mat3 nnt = glm::outerProduct(camera_right, camera_right);
+        glm::mat3 N = glm::mat3{
+            0.f           , -camera_right.z,  camera_right.y,
+            camera_right.z,  0.f           , -camera_right.x,
+            -camera_right.y,  camera_right.x,  0.f
+        };
+        glm::mat3 R_right = glm::cos(theta_y) * glm::mat3(1.f)
+                            + (1.f - glm::cos(theta_y)) * nnt
+                            + glm::sin(theta_y) * N;
+
+        m_camera.rot(R_x * R_right);
 
         update(); // asks for a PaintGL() call to occur
     }
@@ -165,34 +174,12 @@ void Realtime::timerEvent(QTimerEvent *event) {
     m_elapsedTimer.restart();
 
     // Use deltaTime and m_keyMap here to move around
-    float translation = 5. * deltaTime;
-
-    // update camera's position as well as the view matrix
-    if (m_keyMap[Qt::Key_W]) {
-        camera.setPos(camera.getPos() + translation * glm::normalize(camera.getLook()));
-    }
-
-    if (m_keyMap[Qt::Key_S]) {
-        camera.setPos(camera.getPos() - translation * glm::normalize(camera.getLook()));
-    }
-
-    if (m_keyMap[Qt::Key_A]) {
-        glm::vec3 u = glm::normalize(glm::cross(glm::vec3(camera.getUp()), glm::vec3(camera.getLook())));
-        camera.setPos(camera.getPos() + glm::vec4(translation * u, 0.));
-    }
-
-    if (m_keyMap[Qt::Key_D]) {
-        glm::vec3 u = glm::normalize(glm::cross(glm::vec3(camera.getUp()), glm::vec3(camera.getLook())));
-        camera.setPos(camera.getPos() - glm::vec4(translation * u, 0.));
-    }
-
-    if (m_keyMap[Qt::Key_Control]) {
-        camera.setPos(camera.getPos() + translation * glm::vec4(0, -1, 0, 0));
-    }
-
-    if (m_keyMap[Qt::Key_Space]) {
-        camera.setPos(camera.getPos() + translation * glm::vec4(0, 1, 0, 0));
-    }
+    if(m_keyMap[Qt::Key_W] == true) m_camera.W(deltaTime);
+    if(m_keyMap[Qt::Key_S] == true) m_camera.S(deltaTime);
+    if(m_keyMap[Qt::Key_A] == true) m_camera.A(deltaTime);
+    if(m_keyMap[Qt::Key_D] == true) m_camera.D(deltaTime);
+    if(m_keyMap[Qt::Key_Space] == true) m_camera.space(deltaTime);
+    if(m_keyMap[Qt::Key_Control] == true) m_camera.control(deltaTime);
 
     update(); // asks for a PaintGL() call to occur
 }
@@ -265,7 +252,7 @@ void Realtime::saveViewportImage(std::string filePath) {
 void Realtime::initSky() {
     //TODO
     m_skyShader = ShaderLoader::createShaderProgram(":/resources/shaders/sky.vert", ":/resources/shaders/sky.frag");
-    m_sky_model = glm::scale(glm::mat4(1.0f), glm::vec3(500.0f, 500.0f, 500.0f));
+    m_sky_model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     // Create Sky Sphere
     glGenBuffers(1, &m_sky_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sky_vbo);
@@ -296,7 +283,6 @@ void Realtime::initMountain() {
 // ================== Individual Draw Functions
 void Realtime::drawSky() {
     //TODO
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindVertexArray(m_sky_vao);
 
     glUseProgram(m_skyShader);

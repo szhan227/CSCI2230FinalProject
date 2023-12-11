@@ -1,7 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
+#include "utils/scenedata.h"
 // A class representing a virtual camera.
 
 // Feel free to make your own design choices for Camera class, the functions below are all optional / for your convenience.
@@ -10,62 +9,39 @@
 
 class Camera {
 public:
+    void set_Camera(SceneCameraData camera);
+    glm::vec4 get_eye() const {return glm::vec4(pos,1.0);}
+    glm::vec3 get_dir() const {return dir;}
+    glm::vec3 get_right() const {return right;}
+
     // Returns the view matrix for the current camera settings.
     // You might also want to define another function that return the inverse of the view matrix.
     glm::mat4 getViewMatrix() const;
-
-    glm::mat4 getInverseViewMatrix() const;
-
-    glm::mat4 getPerspectiveMatrix() const;
+    glm::mat4 getProjMatrix(int width, int height, float near_z, float far_z) const;
 
     // Returns the aspect ratio of the camera.
-    float getAspectRatio() const;
+    float getAspectRatio(int width, int height) const;
 
     // Returns the height angle of the camera in RADIANS.
     float getHeightAngle() const;
 
-    // Returns the focal length of this camera.
-    // This is for the depth of field extra-credit feature only;
-    // You can ignore if you are not attempting to implement depth of field.
-    float getFocalLength() const;
+    // key event
+    void W(float deltaTime);
+    void S(float deltaTime);
+    void A(float deltaTime);
+    void D(float deltaTime);
+    void space(float deltaTime);
+    void control(float deltaTime);
+    void rot(glm::mat3 R);
 
-    // Returns the focal length of this camera.
-    // This is for the depth of field extra-credit feature only;
-    // You can ignore if you are not attempting to implement depth of field.
-    float getAperture() const;
-
-    glm::vec4 getPos() const
-    {
-        return glm::vec4(pos, 1);
-    }
-
-    glm::vec4 getLook() const
-    {
-        return glm::vec4(look, 1);
-    }
-
-    glm::vec4 getUp() const
-    {
-        return glm::vec4(up, 1);
-    }
-
-    // setters
-    void setWidth(int w) { width = w; }
-    void setHeight(int h) { height = h; }
-    void setPos(glm::vec3 p) { pos = p; }
-    void setLook(glm::vec3 l) { look = l; }
-    void setUp(glm::vec3 u) { up = u; }
-    void setAspectRatio(float ar) { aspect_ratio = ar; }
-    void setHeightAngle(float ha) { height_angle = ha; }
-    void setFocalLength(float fl) { focalLength = fl; }
-    void setAperture(float a) { aperture = a; }
-    void setNear(float n) {near = n; }
-    void setFar(float f) {far = f; }
+    void flip();
 
 private:
-    int width, height;
-    glm::vec3 pos, look, up;
-    float aspect_ratio, height_angle;
-    float focalLength, aperture;
-    float near, far;
+    glm::vec3 pos;
+    glm::vec3 dir;
+    glm::vec3 up;
+    glm::vec3 right;
+    glm::vec3 wup{0.f,1.f,0.f};
+    float step = 5.f;
+    float heightAngle;
 };
