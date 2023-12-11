@@ -6,8 +6,6 @@
 #include <iostream>
 #include "settings.h"
 
-// ================== Project 5: Lights, Camera
-
 Realtime::Realtime(QWidget *parent)
     : QOpenGLWidget(parent)
 {
@@ -22,14 +20,13 @@ Realtime::Realtime(QWidget *parent)
     m_keyMap[Qt::Key_Control] = false;
     m_keyMap[Qt::Key_Space]   = false;
 
-    // If you must use this function, do not edit anything above this
 }
 
 void Realtime::finish() {
     killTimer(m_timer);
     this->makeCurrent();
 
-    // Students: anything requiring OpenGL calls when the program exits should be done here
+    //TODO: delete any FBO, VBO, VAO, etc. you created here
 
     this->doneCurrent();
 }
@@ -56,18 +53,26 @@ void Realtime::initializeGL() {
     // Tells OpenGL how big the screen is
     glViewport(0, 0, size().width() * m_devicePixelRatio, size().height() * m_devicePixelRatio);
 
-    // Students: anything requiring OpenGL calls when the program starts should be done here
+    //TODO: Call individual initialize_{mountain, terrain, water, sky} functions here
+    initSky();
+    initWater();
+    initTerrain();
+    initMountain();
 }
 
 void Realtime::paintGL() {
-    // Students: anything requiring OpenGL calls every frame should be done here
+    //TODO: Call individual paint_{mountain, terrain, water, sky} functions here
+    drawSky();
+    drawWater();
+    drawTerrain();
+    drawMountain();
 }
 
 void Realtime::resizeGL(int w, int h) {
     // Tells OpenGL how big the screen is
     glViewport(0, 0, size().width() * m_devicePixelRatio, size().height() * m_devicePixelRatio);
 
-    // Students: anything requiring OpenGL calls when the program starts should be done here
+    //TODO: Support resizing the window
 }
 
 void Realtime::sceneChanged() {
@@ -240,4 +245,38 @@ void Realtime::saveViewportImage(std::string filePath) {
     glDeleteTextures(1, &texture);
     glDeleteRenderbuffers(1, &rbo);
     glDeleteFramebuffers(1, &fbo);
+}
+
+// ================== Individual Initialization Functions
+void Realtime::initSky() {
+    //TODO
+}
+
+void Realtime::initWater() {
+    //TODO
+}
+
+void Realtime::initTerrain() {
+    //TODO
+}
+
+void Realtime::initMountain() {
+
+}
+
+// ================== Individual Draw Functions
+void Realtime::drawSky() {
+    //TODO
+}
+
+void Realtime::drawWater() {
+    //TODO
+}
+
+void Realtime::drawTerrain() {
+    //TODO
+}
+
+void Realtime::drawMountain() {
+    //TODO
 }

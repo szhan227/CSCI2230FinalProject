@@ -41,6 +41,18 @@ private:
     const Camera& getCamera() const;
     glm::mat3 makeRodrigues(glm::vec3 axis, float angle);
 
+    // Initialization functions
+    void initSky();
+    void initWater();
+    void initTerrain();
+    void initMountain();
+
+    // Draw functions
+    void drawSky();
+    void drawWater();
+    void drawTerrain();
+    void drawMountain();
+
     // Tick Related Variables
     int m_timer;                                        // Stores timer which attempts to run ~60 times per second
     QElapsedTimer m_elapsedTimer;                       // Stores timer which keeps track of actual time between frames
@@ -55,4 +67,14 @@ private:
 
     // Camera
     Camera camera;
+
+    //TODO: add FBO, VAO, VBO, variables for each landscape component
+
+    // Sky variables
+
+    // Water variables
+
+    // Terrain variables
+
+    // Mountain variables
 };
