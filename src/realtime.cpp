@@ -6,8 +6,19 @@
 #include <iostream>
 #include "settings.h"
 
+#include <glm/gtc/type_ptr.hpp>
+#include "glm/gtx/transform.hpp"
+
 Realtime::Realtime(QWidget *parent)
-    : QOpenGLWidget(parent)
+    : QOpenGLWidget(parent),
+    m_lightDir(-0.3,-1.0,-0.7, 0),
+    m_ka(0.1),
+    m_kd(0.8),
+    m_ks(1),
+    m_shininess(15),
+    m_angleX(6),
+    m_angleY(0),
+    m_zoom(2)
 {
     m_prev_mouse_pos = glm::vec2(size().width()/2, size().height()/2);
     setMouseTracking(true);
@@ -20,6 +31,7 @@ Realtime::Realtime(QWidget *parent)
     m_keyMap[Qt::Key_Control] = false;
     m_keyMap[Qt::Key_Space]   = false;
 
+    rebuildMatrices();
 }
 
 void Realtime::finish() {
@@ -61,6 +73,8 @@ void Realtime::initializeGL() {
 }
 
 void Realtime::paintGL() {
+    m_view = camera.getViewMatrix();
+    m_proj = camera.getPerspectiveMatrix();
     //TODO: Call individual paint_{mountain, terrain, water, sky} functions here
     drawSky();
     drawWater();
@@ -250,6 +264,21 @@ void Realtime::saveViewportImage(std::string filePath) {
 // ================== Individual Initialization Functions
 void Realtime::initSky() {
     //TODO
+    m_skyShader = ShaderLoader::createShaderProgram(":/resources/shaders/sky.vert", ":/resources/shaders/sky.frag");
+    glm::mat4 m_sky_model = glm::scale(glm::mat4(1.0f), glm::vec3(500.0f, 500.0f, 500.0f));
+    // Create Sky Sphere
+    glGenBuffers(1, &m_sky_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_sky_vbo);
+    m_skySphere = Sphere(10, 20).getSphereData();
+    glBufferData(GL_ARRAY_BUFFER,m_skySphere.size() * sizeof(GLfloat),m_skySphere.data(), GL_STATIC_DRAW);
+    glGenVertexArrays(1, &m_sky_vao);
+    glBindVertexArray(m_sky_vao);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(GLfloat),reinterpret_cast<void *>(0));
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 
 void Realtime::initWater() {
@@ -267,6 +296,32 @@ void Realtime::initMountain() {
 // ================== Individual Draw Functions
 void Realtime::drawSky() {
     //TODO
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindVertexArray(m_sky_vao);
+
+    glUseProgram(m_skyShader);
+
+    glUniformMatrix4fv(glGetUniformLocation(m_skyShader, "model"), 1, GL_FALSE, &m_sky_model[0][0]);
+
+    glUniformMatrix4fv(glGetUniformLocation(m_skyShader, "view"), 1, GL_FALSE, &m_view[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_skyShader, "projection"), 1, GL_FALSE, &m_proj[0][0]);
+
+    glUniform1f(glGetUniformLocation(m_skyShader, "ka"), m_ka);
+
+    glUniform4fv(glGetUniformLocation(m_skyShader, "lightDir"), 1, glm::value_ptr(m_lightDir));
+    glUniform1f(glGetUniformLocation(m_skyShader, "kd"), m_kd);
+
+    glm::mat4 invView = glm::inverse(m_view);
+
+    glUniform1f(glGetUniformLocation(m_skyShader, "ks"), m_ks);
+    glUniform1f(glGetUniformLocation(m_skyShader, "shininess"), m_shininess);
+    glUniform4fv(glGetUniformLocation(m_skyShader, "cameraPosition"), 1, glm::value_ptr(invView[3]));
+
+
+    glDrawArrays(GL_TRIANGLES, 0, m_skySphere.size() / 3);
+    glBindVertexArray(0);
+
+    glUseProgram(0);
 }
 
 void Realtime::drawWater() {
@@ -279,4 +334,23 @@ void Realtime::drawTerrain() {
 
 void Realtime::drawMountain() {
     //TODO
+}
+
+void Realtime::rebuildMatrices() {
+    // Update view matrix by rotating eye vector based on x and y angles
+    m_view = glm::mat4(1);
+    glm::mat4 rot = glm::rotate(glm::radians(-10 * m_angleX),glm::vec3(0,0,1));
+    glm::vec3 eye = glm::vec3(2,0,0);
+    eye = glm::vec3(rot * glm::vec4(eye,1));
+
+    rot = glm::rotate(glm::radians(-10 * m_angleY),glm::cross(glm::vec3(0,0,1),eye));
+    eye = glm::vec3(rot * glm::vec4(eye,1));
+
+    eye = eye * m_zoom;
+
+    m_view = glm::lookAt(eye,glm::vec3(0,0,0),glm::vec3(0,0,1));
+
+    m_proj = glm::perspective(glm::radians(45.0),1.0 * width() / height(),0.01,1000.0);
+
+    update();
 }

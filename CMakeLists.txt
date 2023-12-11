@@ -41,6 +41,13 @@ add_executable(${PROJECT_NAME}
     src/utils/sceneparser.h
     src/utils/shaderloader.h
     src/utils/aspectratiowidget/aspectratiowidget.hpp
+
+    # added files
+    src/camera/camera.cpp
+    src/camera/camera.h
+
+    src/shape/sphere.cpp
+    src/shape/sphere.h
 )
 
 # GLM: this creates its library and allows you to `#include "glm/..."`
@@ -67,6 +74,8 @@ qt6_add_resources(${PROJECT_NAME} "Resources"
     FILES
         resources/shaders/default.frag
         resources/shaders/default.vert
+        resources/shaders/sky.vert
+        resources/shaders/sky.frag
 )
 
 # GLEW: this provides support for Windows (including 64-bit)

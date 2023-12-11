@@ -7,6 +7,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "camera/camera.h"
+#include "utils/shaderloader.h"
+#include "shape/sphere.h"
 
 #include <unordered_map>
 #include <QElapsedTimer>
@@ -40,13 +42,14 @@ private:
     void timerEvent(QTimerEvent *event) override;
     const Camera& getCamera() const;
     glm::mat3 makeRodrigues(glm::vec3 axis, float angle);
+    void rebuildMatrices();
 
     // Initialization functions
     void initSky();
     void initWater();
     void initTerrain();
     void initMountain();
-
+    
     // Draw functions
     void drawSky();
     void drawWater();
@@ -71,10 +74,31 @@ private:
     //TODO: add FBO, VAO, VBO, variables for each landscape component
 
     // Sky variables
+    GLuint m_skyShader;
+    GLuint m_sky_vbo;
+    GLuint m_sky_vao;
+    std::vector<float> m_skySphere;
+    glm::mat4 m_sky_model;
 
     // Water variables
 
     // Terrain variables
 
     // Mountain variables
+
+    // Variables that are shared across all landscapes (Need to be discussed)
+    glm::mat4 m_view  = glm::mat4(1);
+    glm::mat4 m_proj  = glm::mat4(1);
+
+    glm::vec4 m_lightDir; // one dummy light for now 
+
+    float m_ka;
+    float m_kd;
+    float m_ks;
+    float m_shininess;
+
+    QPoint m_prevMousePos;
+    float  m_angleX;
+    float  m_angleY;
+    float  m_zoom;
 };
