@@ -16,6 +16,16 @@
 #include <QTime>
 #include <QTimer>
 
+#include "shape/water.h"
+struct water_fbo
+{
+    // 0: refraction
+    // 1: reflection
+    GLuint m_fbo;
+    GLuint m_fbo_texture[2];
+    GLuint m_fbo_renderbuffer;
+};
+
 class Realtime : public QOpenGLWidget
 {
 public:
@@ -69,6 +79,7 @@ private:
     int m_devicePixelRatio;
     float m_h=640.f;
     float m_w=640.f;
+    GLuint m_defaultFBO=2;
 
     // Camera
     Camera m_camera;
@@ -83,7 +94,19 @@ private:
     glm::mat4 m_sky_model;
 
     // Water variables
-
+    glm::mat4 m_water_model;
+    GLuint m_waterShader;
+    GLuint m_water_vbo;
+    GLuint m_water_vao;
+    water_fbo m_water_fbo;
+    Water m_water;
+    QImage m_dudv;
+    QImage m_normal;
+    GLuint m_dudv_texture;
+    GLuint m_normal_texture;
+    float water_speed = 0.001;
+    float water_time = 0.f;
+    float tmp_empty;
     // Terrain variables
 
     // Mountain variables

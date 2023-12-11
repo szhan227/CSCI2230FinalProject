@@ -86,6 +86,7 @@ void Realtime::paintGL() {
     m_view = m_camera.getViewMatrix();
     m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 100.f);
     //TODO: Call individual paint_{mountain, terrain, water, sky} functions here
+    glViewport(0, 0, m_w, m_h);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     drawSky();
     drawWater();
@@ -252,7 +253,7 @@ void Realtime::saveViewportImage(std::string filePath) {
 void Realtime::initSky() {
     //TODO
     m_skyShader = ShaderLoader::createShaderProgram(":/resources/shaders/sky.vert", ":/resources/shaders/sky.frag");
-    m_sky_model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    m_sky_model = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 50.0f));
     // Create Sky Sphere
     glGenBuffers(1, &m_sky_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sky_vbo);
@@ -268,8 +269,82 @@ void Realtime::initSky() {
     glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 
+#define ATTACHMENT_NUM 2
+const GLenum attachments[ATTACHMENT_NUM] = {
+    GL_COLOR_ATTACHMENT0,
+    GL_COLOR_ATTACHMENT1,
+};
 void Realtime::initWater() {
-    //TODO
+    m_water_model = glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
+    // Create Water Surface
+    glGenBuffers(1, &m_water_vbo);
+    glGenVertexArrays(1, &m_water_vao);
+    m_water.makeSurf();
+    m_water.set_gl(m_water_vbo, m_water_vao);
+    m_waterShader = ShaderLoader::createShaderProgram(":/resources/shaders/water.vert", ":/resources/shaders/water.frag");
+    glUseProgram(m_waterShader);
+    glUniform1i(glGetUniformLocation(m_waterShader, "textureSampler1"), 0);
+    glUniform1i(glGetUniformLocation(m_waterShader, "textureSampler2"), 1);
+    glUniform1i(glGetUniformLocation(m_waterShader, "textureSampler_dudv"), 2);
+    glUniform1i(glGetUniformLocation(m_waterShader, "textureSampler_normal"), 3);
+    glUseProgram(0);
+    //////////////////////////
+
+    // Task 18: Generate and bind an FBO
+    glGenFramebuffers(1, &m_water_fbo.m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_water_fbo.m_fbo);
+    // Task 19: Generate and bind an empty texture, set its min/mag filter interpolation, then unbind
+    glGenTextures(ATTACHMENT_NUM, m_water_fbo.m_fbo_texture);
+    for(int i=0; i<ATTACHMENT_NUM; i++)
+    {
+        glBindTexture(GL_TEXTURE_2D, m_water_fbo.m_fbo_texture[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_w, m_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachments[i], GL_TEXTURE_2D, m_water_fbo.m_fbo_texture[i], 0);
+    }
+
+    // load dudv map texture
+    QString dudv_filepath = QString(":/resources/images/waterDUDV.png");
+    if (!m_dudv.load(dudv_filepath))
+    {
+        std::cout << "The image path is wrong" << std::endl;
+        return;
+    }
+    m_dudv = m_dudv.convertToFormat(QImage::Format_RGBA8888).mirrored();
+    glGenTextures(1, &m_dudv_texture);
+    glBindTexture(GL_TEXTURE_2D, m_dudv_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_dudv.width(), m_dudv.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_dudv.bits());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // load normal map texture
+    QString normal_filepath = QString(":/resources/images/normalMap.png");
+    if (!m_normal.load(normal_filepath))
+    {
+        std::cout << "The image path is wrong" << std::endl;
+        return;
+    }
+    m_normal = m_normal.convertToFormat(QImage::Format_RGBA8888).mirrored();
+    glGenTextures(1, &m_normal_texture);
+    glBindTexture(GL_TEXTURE_2D, m_normal_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_normal.width(), m_normal.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_normal.bits());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Task 20: Generate and bind a renderbuffer of the right size, set its format, then unbind
+    glGenRenderbuffers(1, &m_water_fbo.m_fbo_renderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_water_fbo.m_fbo_renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_w, m_h);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_water_fbo.m_fbo_renderbuffer);
+
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) std::cout << "Framebuffer is not complete!" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Realtime::initTerrain() {
@@ -305,12 +380,33 @@ void Realtime::drawSky() {
 
     glDrawArrays(GL_TRIANGLES, 0, m_skySphere.size() / 3);
     glBindVertexArray(0);
-
     glUseProgram(0);
 }
 
 void Realtime::drawWater() {
-    //TODO
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_water_fbo.m_fbo_texture[0]);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_water_fbo.m_fbo_texture[1]);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, m_dudv_texture);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, m_normal_texture);
+
+    glBindVertexArray(m_water_vao);
+    glUseProgram(m_waterShader);
+    glUniformMatrix4fv(glGetUniformLocation(m_waterShader, "m_Matrix"), 1, GL_FALSE, &m_water_model[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_waterShader, "v_Matrix"), 1, GL_FALSE, &m_view[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_waterShader, "proj_Matrix"), 1, GL_FALSE, &m_proj[0][0]);
+    //    lights2shader(m_water_shader);
+    // movement
+    water_time = std::modf(water_time+water_speed, &tmp_empty);
+    glUniform1f(glGetUniformLocation(m_waterShader, "time_step"), water_time);
+    glDrawArrays(GL_TRIANGLES, 0, m_water.size());
+    // Unbind vao and shader
+    glBindVertexArray(0);
+    glUseProgram(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Realtime::drawTerrain() {
