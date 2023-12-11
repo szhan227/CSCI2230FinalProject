@@ -31,7 +31,7 @@ Realtime::Realtime(QWidget *parent)
     m_keyMap[Qt::Key_Control] = false;
     m_keyMap[Qt::Key_Space]   = false;
 
-    rebuildMatrices();
+    // rebuildMatrices();
 }
 
 void Realtime::finish() {
@@ -265,7 +265,7 @@ void Realtime::saveViewportImage(std::string filePath) {
 void Realtime::initSky() {
     //TODO
     m_skyShader = ShaderLoader::createShaderProgram(":/resources/shaders/sky.vert", ":/resources/shaders/sky.frag");
-    glm::mat4 m_sky_model = glm::scale(glm::mat4(1.0f), glm::vec3(500.0f, 500.0f, 500.0f));
+    m_sky_model = glm::scale(glm::mat4(1.0f), glm::vec3(500.0f, 500.0f, 500.0f));
     // Create Sky Sphere
     glGenBuffers(1, &m_sky_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sky_vbo);
@@ -316,7 +316,6 @@ void Realtime::drawSky() {
     glUniform1f(glGetUniformLocation(m_skyShader, "ks"), m_ks);
     glUniform1f(glGetUniformLocation(m_skyShader, "shininess"), m_shininess);
     glUniform4fv(glGetUniformLocation(m_skyShader, "cameraPosition"), 1, glm::value_ptr(invView[3]));
-
 
     glDrawArrays(GL_TRIANGLES, 0, m_skySphere.size() / 3);
     glBindVertexArray(0);
