@@ -9,6 +9,7 @@
 #include "camera/camera.h"
 #include "utils/shaderloader.h"
 #include "shape/sphere.h"
+#include "glm/gtx/transform.hpp"
 
 
 
@@ -95,10 +96,12 @@ private:
     GLuint m_skyShader;
     GLuint m_sky_vbo;
     GLuint m_sky_vao;
-    std::vector<float> m_skySphere;
+    std::vector<float> m_sky;
     glm::mat4 m_sky_model;
+    float sun_speed = 0.01;
+    float sun_time = 0.f;
 
-    // Water variables
+    // Water variablesz
     glm::mat4 m_water_model;
     GLuint m_waterShader;
     GLuint m_water_vbo;
