@@ -110,6 +110,46 @@ void GLRenderer::initializeMountain(){
     glGenBuffers(1, &m_mountain_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_mountain_vbo);
 
+
+    glGenTextures(1, &m_mountain_rock_texture);
+    glBindTexture(GL_TEXTURE_2D, m_mountain_rock_texture);
+
+//    glGenTextures(1, &m_mountain_grass_texture);
+//    glBindTexture(GL_TEXTURE_2D, m_mountain_grass_texture);
+
+    // Load and set up the texture (you can put this in a separate function if needed)
+    QImage rockImage("resources/rock3.jpg");
+    rockImage = rockImage.convertToFormat(QImage::Format_RGBA8888);
+
+    if (rockImage.isNull()) {
+        qDebug() << "Failed to load image.";
+    } else {
+        qDebug() << "Image loaded successfully. Width:" << rockImage.width() << "Height:" << rockImage.height();
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rockImage.width(), rockImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, rockImage.bits());
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+//    QImage grassImage("resources/terrainTexture.jpg");
+//    grassImage = grassImage.convertToFormat(QImage::Format_RGBA8888);
+
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, grassImage.width(), grassImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, grassImage.bits());
+//    glGenerateMipmap(GL_TEXTURE_2D);
+
+
+    // Set texture parameters if needed
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Unbind the texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+
+
     m_mountain_verts = m_mountain_generator.generateMountain();
 
     glBufferData(GL_ARRAY_BUFFER,m_mountain_verts.size() * sizeof(GLfloat),m_mountain_verts.data(), GL_STATIC_DRAW);
@@ -140,11 +180,26 @@ void GLRenderer::paintMountain(){
 
     glUseProgram(m_mountain_shader);
 
+
+    // Bind the texture to a texture unit
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_mountain_rock_texture);  // Use the texture created during initialization
+
+    // Set the texture unit to the uniform in the shader
+    GLuint rockTextureLocation = glGetUniformLocation(m_mountain_shader, "rockSampler");
+    glUniform1i(rockTextureLocation, 0); // 0 corresponds to GL_TEXTURE0
+
+//    GLuint grassTextureLocation = glGetUniformLocation(m_mountain_shader, "grassSampler");
+//    glUniform1i(grassTextureLocation, 1); // 0 corresponds to GL_TEXTURE0
+
+
+
     glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "model"), 1, GL_FALSE, &m_sky_model[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "view"), 1, GL_FALSE, &m_view[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "projMatrix"), 1, GL_FALSE, &m_proj[0][0]);
     glm::mat4 mvMatrix = m_view * m_mountain_model_matrix;
     glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "mvMatrix"), 1, GL_FALSE, &mvMatrix[0][0]);
+    glUniform1i(glGetUniformLocation(m_mountain_shader, "wireshade"), false);
 
     glUniform1f(glGetUniformLocation(m_mountain_shader, "ka"), m_ka);
 
@@ -163,6 +218,8 @@ void GLRenderer::paintMountain(){
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glUseProgram(0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 // ============= end of functions for mountain ==============

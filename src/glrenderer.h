@@ -78,6 +78,8 @@ private:
     GLuint m_mountain_shader;
     GLuint  m_mountain_vao;
     GLuint  m_mountain_vbo;
+    GLuint m_mountain_rock_texture;
+    GLuint m_mountain_grass_texture;
 
     MountainGenerator m_mountain_generator;
     std::vector<GLfloat> m_mountain_verts;

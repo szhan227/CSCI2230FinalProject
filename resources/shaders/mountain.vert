@@ -15,7 +15,8 @@ uniform mat4 view;
 
 void main()
 {
-    vert  = mvMatrix * vec4(vertex, 1.0);
+//    vert  = mvMatrix * vec4(vertex, 1.0);
+    vert = vec4(vertex, 1.f);
     norm  = transpose(inverse(mvMatrix)) *  vec4(normal, 0.0);
     color = inColor;
     lightDir = normalize(vec3(mvMatrix * vec4(1, 0, 1, 0)));

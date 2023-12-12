@@ -125,6 +125,7 @@ glm::vec3 MountainGenerator::getPosition(int row, int col) {
     float distance = std::sqrt((x - center) * (x - center) + (y - center) * (y - center));
     if(distance <= 3.f){
         float coef = (distance * distance / 9.f);
+        coef = distance / 3.f;
         z *= coef;
     }
     return glm::vec3(x,y,z);
@@ -150,13 +151,13 @@ float MountainGenerator::getHeight(float x, float y) {
     // output scale, the larger, the more amplitude of the height and depth of peak nad valley.
 
     float frequency = 3.f;
-    float amplitude = 1.f;
+    float amplitude = 1.5f;
     // Task 6: modify this call to produce noise of a different frequency
     float z = 0.f;
 
-    for(int i = 0; i < 4; i++){
+    for(int i = 0; i < 5; i++){
         z += amplitude * computePerlin(x * frequency, y * frequency) / 2;
-        frequency *= 2;
+//        frequency *= 2;
         amplitude /= 2;
     }
     // Task 7: combine multiple different octaves of noise to produce fractal perlin noise

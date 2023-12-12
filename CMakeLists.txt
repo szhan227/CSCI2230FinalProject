@@ -48,6 +48,9 @@ qt_add_resources(${PROJECT_NAME} "Resources"
   # mountain shaders
   resources/shaders/mountain.vert
   resources/shaders/mountain.frag
+
+  # mountain textures
+  resources/rock3.jpg
 )
 
 # GLEW: this creates its library and allows you to `#include "GL/glew.h"`
