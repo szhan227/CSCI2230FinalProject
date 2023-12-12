@@ -11,7 +11,7 @@
 
 Realtime::Realtime(QWidget *parent)
     : QOpenGLWidget(parent),
-    m_lightDir(-0.3,-1.0,-0.7, 0),
+    m_lightDir(0, 0.6f, -1.f, 0),
     m_ka(0.1),
     m_kd(0.8),
     m_ks(1),
@@ -253,12 +253,16 @@ void Realtime::saveViewportImage(std::string filePath) {
 void Realtime::initSky() {
     //TODO
     m_skyShader = ShaderLoader::createShaderProgram(":/resources/shaders/sky.vert", ":/resources/shaders/sky.frag");
-    m_sky_model = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 50.0f));
-    // Create Sky Sphere
+
     glGenBuffers(1, &m_sky_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sky_vbo);
-    m_skySphere = Sphere(10, 20).getSphereData();
-    glBufferData(GL_ARRAY_BUFFER,m_skySphere.size() * sizeof(GLfloat),m_skySphere.data(), GL_STATIC_DRAW);
+
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
+    m_sky_model = scaleMatrix;
+
+
+    m_sky = Sphere(10, 20).getSphereData();
+    glBufferData(GL_ARRAY_BUFFER,m_sky.size() * sizeof(GLfloat),m_sky.data(), GL_STATIC_DRAW);
     glGenVertexArrays(1, &m_sky_vao);
     glBindVertexArray(m_sky_vao);
 
@@ -367,18 +371,14 @@ void Realtime::drawSky() {
     glUniformMatrix4fv(glGetUniformLocation(m_skyShader, "view"), 1, GL_FALSE, &m_view[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(m_skyShader, "projection"), 1, GL_FALSE, &m_proj[0][0]);
 
-    glUniform1f(glGetUniformLocation(m_skyShader, "ka"), m_ka);
-
+    sun_time += sun_speed;
+    m_lightDir = glm::vec4(0, std::cos(sun_time) * 0.3 + 0.2, -1, 0.0);
     glUniform4fv(glGetUniformLocation(m_skyShader, "lightDir"), 1, glm::value_ptr(m_lightDir));
-    glUniform1f(glGetUniformLocation(m_skyShader, "kd"), m_kd);
 
-    glm::mat4 invView = glm::inverse(m_view);
+    glUniform4fv(glGetUniformLocation(m_skyShader, "cameraPosition"), 1, &m_camera.get_eye()[0]);
 
-    glUniform1f(glGetUniformLocation(m_skyShader, "ks"), m_ks);
-    glUniform1f(glGetUniformLocation(m_skyShader, "shininess"), m_shininess);
-    glUniform4fv(glGetUniformLocation(m_skyShader, "cameraPosition"), 1, glm::value_ptr(invView[3]));
-
-    glDrawArrays(GL_TRIANGLES, 0, m_skySphere.size() / 3);
+    glDrawArrays(GL_TRIANGLES, 0, m_sky.size() / 3);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
     glUseProgram(0);
 }
@@ -431,7 +431,7 @@ void Realtime::rebuildMatrices() {
 
     m_view = glm::lookAt(eye,glm::vec3(0,0,0),glm::vec3(0,0,1));
 
-    m_proj = glm::perspective(glm::radians(45.0),1.0 * width() / height(),0.01,1000.0);
+    m_proj = glm::perspective(glm::radians(45.0),1.0 * width() / height(),0.01,10000.0);
 
     update();
 }
