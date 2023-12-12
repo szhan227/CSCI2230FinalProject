@@ -13,6 +13,7 @@ out vec4 fragColor;
 
 void main(void)
 {
+    fragColor = vec4(0.f);
     if (wireshade) {
         fragColor = vec4(color,1);
     } else {
@@ -33,6 +34,5 @@ void main(void)
         float kd = 0.7f;
         diffuse = textureColor * (1 - kd) + diffuse * kd;
         fragColor += diffuse;
-
     }
 }

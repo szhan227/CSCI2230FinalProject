@@ -369,7 +369,7 @@ void Realtime::initMountain() {
     //    glBindTexture(GL_TEXTURE_2D, m_mountain_grass_texture);
 
     // Load and set up the texture (you can put this in a separate function if needed)
-    QImage rockImage(":resources/images/rock3.jpg");
+    QImage rockImage(":/resources/images/rock3.jpg");
     rockImage = rockImage.convertToFormat(QImage::Format_RGBA8888);
 
     if (rockImage.isNull()) {
