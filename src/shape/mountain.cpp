@@ -3,6 +3,7 @@
 #include <cmath>
 #include "glm/glm.hpp"
 #include <iostream>
+#include <cmath>
 
 // Constructor
 Mountain::Mountain()
@@ -230,7 +231,7 @@ glm::vec3 Mountain::getColor(glm::vec3 normal, glm::vec3 position) {
 
     float theta = std::acos(glm::dot(normal, upRight) / glm::length(normal) / glm::length(upRight));
 
-    if(std::abs(theta) < std::numbers::pi / 4){
+    if(std::abs(theta) < M_PI / 4){
 //        position[2] > 0.05f &&
         color = white;
     }

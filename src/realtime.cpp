@@ -84,7 +84,7 @@ void Realtime::initializeGL() {
 
 void Realtime::paintGL() {
     m_view = m_camera.getViewMatrix();
-    m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 100.f);
+    m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 1000.f);
     //TODO: Call individual paint_{mountain, terrain, water, sky} functions here
     glViewport(0, 0, m_w, m_h);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -369,7 +369,7 @@ void Realtime::initMountain() {
     //    glBindTexture(GL_TEXTURE_2D, m_mountain_grass_texture);
 
     // Load and set up the texture (you can put this in a separate function if needed)
-    QImage rockImage("resources/images/rock3.jpg");
+    QImage rockImage(":resources/images/rock3.jpg");
     rockImage = rockImage.convertToFormat(QImage::Format_RGBA8888);
 
     if (rockImage.isNull()) {
