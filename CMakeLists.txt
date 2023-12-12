@@ -50,6 +50,8 @@ add_executable(${PROJECT_NAME}
     src/shape/sphere.h
     src/shape/water.h
     src/shape/water.cpp
+    src/shape/mountain.h
+    src/shape/mountain.cpp
 )
 
 # GLM: this creates its library and allows you to `#include "glm/..."`
@@ -80,8 +82,12 @@ qt6_add_resources(${PROJECT_NAME} "Resources"
         resources/shaders/sky.frag
         resources/shaders/water.frag
         resources/shaders/water.vert
+        resources/shaders/mountain.frag
+        resources/shaders/mountain.vert
         resources/images/waterDUDV.png
         resources/images/normalMap.png
+        resources/images/rock3.jpg
+        resources/images/terrainTexture.jpg
 )
 
 # GLEW: this provides support for Windows (including 64-bit)

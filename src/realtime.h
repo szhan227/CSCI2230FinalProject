@@ -10,13 +10,18 @@
 #include "utils/shaderloader.h"
 #include "shape/sphere.h"
 
+
+
 #include <unordered_map>
 #include <QElapsedTimer>
 #include <QOpenGLWidget>
 #include <QTime>
 #include <QTimer>
 
+#include "shape/mountain.h"
 #include "shape/water.h"
+
+
 struct water_fbo
 {
     // 0: refraction
@@ -110,6 +115,27 @@ private:
     // Terrain variables
 
     // Mountain variables
+    // ------------------ Mountain Component start -------------------
+    int m_xRot = 0;
+    int m_yRot = 0;
+    int m_zRot = 0;
+
+    glm::mat4 m_mountain_model_matrix = glm::mat4(3.f);
+
+    GLuint m_mountain_shader;
+    GLuint  m_mountain_vao;
+    GLuint  m_mountain_vbo;
+    GLuint m_mountain_rock_texture;
+    GLuint m_mountain_grass_texture;
+
+    Mountain m_mountain_generator;
+    std::vector<GLfloat> m_mountain_verts;
+
+    void initializeMountain();
+    void paintMountain();
+    //    int m_projMatrixLoc = 0;
+    //    int m_mvMatrixLoc = 0;
+    // ------------------ Mountain Component end ------------------
 
     // Variables that are shared across all landscapes (Need to be discussed)
     glm::mat4 m_view  = glm::mat4(1);
