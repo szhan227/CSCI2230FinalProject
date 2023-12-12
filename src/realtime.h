@@ -98,7 +98,7 @@ private:
     GLuint m_sky_vao;
     std::vector<float> m_sky;
     glm::mat4 m_sky_model;
-    float sun_speed = 0.01;
+    float sun_speed = 0.001;
     float sun_time = 0.f;
 
     // Water variablesz
