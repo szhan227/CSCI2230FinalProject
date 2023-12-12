@@ -13,6 +13,10 @@ uniform mat4 mvMatrix;
 uniform mat4 model;
 uniform mat4 view;
 
+// for water rendering
+uniform vec4 plane;
+out float gl_ClipDistance[1];
+
 void main()
 {
 //    vert  = mvMatrix * vec4(vertex, 1.0);
@@ -21,4 +25,6 @@ void main()
     color = inColor;
     lightDir = normalize(vec3(mvMatrix * vec4(1, 0, 1, 0)));
     gl_Position = projMatrix * mvMatrix * vec4(vertex, 1.0);
+
+    gl_ClipDistance[0] = dot(plane, model * vec4(vertex, 1.0));
 }

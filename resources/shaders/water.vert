@@ -24,5 +24,5 @@ void main() {
     tinv_m = transpose(inverse(mat3(m_Matrix)));
     gl_Position = proj_Matrix * v_Matrix * m_Matrix * vec4(op, 1.0f);
     ClipSpace = gl_Position;
-    uv = vec2(op.x/2.0+0.5, op.z/2.0+0.5)*2.0;
+    uv = vec2(op.x/2.0+0.5, op.z/2.0+0.5)*60.0;
 }
