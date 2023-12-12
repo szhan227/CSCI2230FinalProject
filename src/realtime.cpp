@@ -257,7 +257,7 @@ void Realtime::initSky() {
     glGenBuffers(1, &m_sky_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_sky_vbo);
 
-    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 50.0f));
     m_sky_model = scaleMatrix;
 
 
@@ -279,7 +279,7 @@ const GLenum attachments[ATTACHMENT_NUM] = {
     GL_COLOR_ATTACHMENT1,
 };
 void Realtime::initWater() {
-    m_water_model = glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
+    m_water_model = glm::scale(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 100.0f));
     // Create Water Surface
     glGenBuffers(1, &m_water_vbo);
     glGenVertexArrays(1, &m_water_vao);
