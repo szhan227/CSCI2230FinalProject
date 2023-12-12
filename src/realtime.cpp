@@ -352,7 +352,55 @@ void Realtime::initWater() {
 }
 
 void Realtime::initTerrain() {
-    //TODO
+    m_terrainShader = ShaderLoader::createShaderProgram(":/resources/shaders/terrain.vert", ":/resources/shaders/terrain.frag");
+
+    glGenBuffers(1, &m_terrain_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_terrain_vbo);
+
+    glGenTextures(1, &m_terrain_texture);
+    glBindTexture(GL_TEXTURE_2D, m_terrain_texture);
+
+    QImage grassImage(":resources/images/terrainTexture.jpg");
+    grassImage = grassImage.convertToFormat(QImage::Format_RGBA8888);
+
+    if (grassImage.isNull()) {
+        qDebug() << "Failed to load image.";
+    } else {
+        qDebug() << "Image loaded successfully. Width:" << grassImage.width() << "Height:" << grassImage.height();
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, grassImage.width(), grassImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, grassImage.bits());
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Unbind the texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    m_terrain_verts = m_terrain_generator.generateTerrain();
+
+    glBufferData(GL_ARRAY_BUFFER,m_terrain_verts.size() * sizeof(GLfloat),m_terrain_verts.data(), GL_STATIC_DRAW);
+    glGenVertexArrays(1, &m_terrain_vao);
+    glBindVertexArray(m_terrain_vao);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+                          nullptr);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+                          reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+                          reinterpret_cast<void *>(6 * sizeof(GLfloat)));
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 
 void Realtime::initMountain() {
@@ -478,7 +526,40 @@ void Realtime::drawWater() {
 }
 
 void Realtime::drawTerrain() {
-    //TODO
+    glBindVertexArray(m_terrain_vao);
+    glUseProgram(m_terrainShader);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_terrain_texture);
+
+    GLuint terrainTextureLocation = glGetUniformLocation(m_terrainShader, "terrainSampler");
+    glUniform1i(terrainTextureLocation, 0); // 0 corresponds to GL_TEXTURE0
+
+    glUniformMatrix4fv(glGetUniformLocation(m_terrainShader, "model"), 1, GL_FALSE, &m_terrain_model[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_terrainShader, "view"), 1, GL_FALSE, &m_view[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_terrainShader, "projMatrix"), 1, GL_FALSE, &m_proj[0][0]);
+    glm::mat4 mvMatrix = m_view * m_terrain_model;
+    glUniformMatrix4fv(glGetUniformLocation(m_terrainShader, "mvMatrix"), 1, GL_FALSE, &mvMatrix[0][0]);
+    glUniform1i(glGetUniformLocation(m_terrainShader, "wireshade"), false);
+
+    glUniform1f(glGetUniformLocation(m_terrainShader, "ka"), m_ka);
+
+    glUniform4fv(glGetUniformLocation(m_terrainShader, "lightDir"), 1, glm::value_ptr(m_lightDir));
+    glUniform1f(glGetUniformLocation(m_terrainShader, "kd"), m_kd);
+
+    glm::mat4 invView = glm::inverse(m_view);
+    int res = m_terrain_generator.getResolution();
+
+    glUniform1f(glGetUniformLocation(m_terrainShader, "ks"), m_ks);
+    glUniform1f(glGetUniformLocation(m_terrainShader, "shininess"), m_shininess);
+    glUniform4fv(glGetUniformLocation(m_terrainShader, "cameraPosition"), 1, glm::value_ptr(invView[3]));
+
+    glDrawArrays(GL_TRIANGLES, 0, res * res * 6);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glUseProgram(0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Realtime::drawMountain() {

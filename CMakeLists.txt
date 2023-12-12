@@ -52,6 +52,8 @@ add_executable(${PROJECT_NAME}
     src/shape/water.cpp
     src/shape/mountain.h
     src/shape/mountain.cpp
+    src/shape/terrain.h
+    src/shape/terrain.cpp
 )
 
 # GLM: this creates its library and allows you to `#include "glm/..."`
@@ -84,6 +86,8 @@ qt6_add_resources(${PROJECT_NAME} "Resources"
         resources/shaders/water.vert
         resources/shaders/mountain.frag
         resources/shaders/mountain.vert
+        resources/shaders/terrain.frag
+        resources/shaders/terrain.vert
         resources/images/waterDUDV.png
         resources/images/normalMap.png
         resources/images/rock3.jpg

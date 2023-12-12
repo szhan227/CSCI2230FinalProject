@@ -21,6 +21,7 @@
 
 #include "shape/mountain.h"
 #include "shape/water.h"
+#include "shape/terrain.h"
 
 
 struct water_fbo
@@ -101,7 +102,7 @@ private:
     float sun_speed = 0.001;
     float sun_time = 0.f;
 
-    // Water variablesz
+    // Water variables
     glm::mat4 m_water_model;
     GLuint m_waterShader;
     GLuint m_water_vbo;
@@ -115,7 +116,17 @@ private:
     float water_speed = 0.001;
     float water_time = 0.f;
     float tmp_empty;
+
     // Terrain variables
+    glm::mat4 m_terrain_model = glm::mat4(3.f);
+
+    GLuint m_terrainShader;
+    GLuint m_terrain_vbo;
+    GLuint m_terrain_vao;
+    GLuint m_terrain_texture;
+
+    TerrainGenerator m_terrain_generator;
+    std::vector<GLfloat> m_terrain_verts;
 
     // Mountain variables
     // ------------------ Mountain Component start -------------------
