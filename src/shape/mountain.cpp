@@ -121,7 +121,7 @@ glm::vec3 Mountain::getPosition(int row, int col) {
     // Normalizing the planar coordinates to a unit square
     // makes scaling independent of sampling resolution.
 
-    int scale = 5;
+    int scale = 20;
     float center = scale / 2.f;
     float x = 1.f * scale * row / m_resolution;
     float y = 1.f * scale * col / m_resolution;
@@ -129,10 +129,14 @@ glm::vec3 Mountain::getPosition(int row, int col) {
     float z;
     z = getHeight(x, y);
     float distance = std::sqrt((x - center) * (x - center) + (y - center) * (y - center));
-    if(distance <= 3.f){
+    if(distance <= 1.5f){
+        z *= 5 * (1.5 - distance);
+    }
+    else if(distance <= 3.f){
         float coef = (distance * distance / 9.f);
         coef = distance / 3.f;
         z *= coef;
+        z -= 0.15;
     }
     return glm::vec3(x - 0.5f * scale,y - 0.5f * scale,z);
 //    return glm::vec3(x, z, y);
@@ -170,7 +174,7 @@ float Mountain::getHeight(float x, float y) {
     // Task 7: combine multiple different octaves of noise to produce fractal perlin noise
 
     // Return 0 as placeholder
-    return z;
+    return z + 0.15;
 }
 
 // Computes the normal of a vertex by averaging neighbors
@@ -220,13 +224,14 @@ glm::vec3 Mountain::getColor(glm::vec3 normal, glm::vec3 position) {
 
     glm::vec3 color(0.5f, 0.5f, 0.5f);
     color = glm::vec3(0.5f, 0.25f, 0.f);
-    if(position[2] > -0.05f){
+    if(position[2] > 0.25f){
         color = glm::vec3(0.f, 0.3f, 0.f);
     }
 
     float theta = std::acos(glm::dot(normal, upRight) / glm::length(normal) / glm::length(upRight));
 
-    if(position[2] > 0.05f && std::abs(theta) < std::numbers::pi / 4){
+    if(std::abs(theta) < std::numbers::pi / 4){
+//        position[2] > 0.05f &&
         color = white;
     }
     // Return white as placeholder
