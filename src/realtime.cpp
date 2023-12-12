@@ -372,7 +372,10 @@ void Realtime::drawSky() {
     glUniformMatrix4fv(glGetUniformLocation(m_skyShader, "projection"), 1, GL_FALSE, &m_proj[0][0]);
 
     sun_time += sun_speed;
-    m_lightDir = glm::vec4(0, std::cos(sun_time) * 0.3 + 0.2, -1, 0.0);
+    float angle = sun_time * 2.0f * M_PI - M_PI;
+    float x = -std::sin(angle);
+    float y = std::cos(angle);
+    m_lightDir = glm::vec4(x, y * 0.3 + 0.2, -1, 0.0);
     glUniform4fv(glGetUniformLocation(m_skyShader, "lightDir"), 1, glm::value_ptr(m_lightDir));
 
     glUniform4fv(glGetUniformLocation(m_skyShader, "cameraPosition"), 1, &m_camera.get_eye()[0]);
@@ -431,7 +434,7 @@ void Realtime::rebuildMatrices() {
 
     m_view = glm::lookAt(eye,glm::vec3(0,0,0),glm::vec3(0,0,1));
 
-    m_proj = glm::perspective(glm::radians(45.0),1.0 * width() / height(),0.01,10000.0);
+    m_proj = glm::perspective(glm::radians(45.0),1.0 * width() / height(),0.01,1000.0);
 
     update();
 }
