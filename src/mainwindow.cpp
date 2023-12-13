@@ -447,20 +447,52 @@ void MainWindow::onExtraCredit4() {
 
 void MainWindow::onSpring() {
     settings.spring = !settings.spring;
+    // uncheck all other seasons
+    settings.summer = false;
+    settings.fall = false;
+    settings.winter = false;
+    summer->setChecked(false);
+    fall->setChecked(false);
+    winter->setChecked(false);
+
     realtime->settingsChanged();
 }
 
 void MainWindow::onSummer() {
     settings.summer = !settings.summer;
+    // uncheck all other seasons
+    settings.spring = false;
+    settings.fall = false;
+    settings.winter = false;
+    spring->setChecked(false);
+    fall->setChecked(false);
+    winter->setChecked(false);
+
     realtime->settingsChanged();
 }
 
 void MainWindow::onFall() {
     settings.fall = !settings.fall;
+    // uncheck all other seasons
+    settings.spring = false;
+    settings.summer = false;
+    settings.winter = false;
+    spring->setChecked(false);
+    summer->setChecked(false);
+    winter->setChecked(false);
+
     realtime->settingsChanged();
 }
 
 void MainWindow::onWinter() {
     settings.winter = !settings.winter;
+    // uncheck all other seasons
+    settings.spring = false;
+    settings.summer = false;
+    settings.fall = false;
+    spring->setChecked(false);
+    summer->setChecked(false);
+    fall->setChecked(false);
+
     realtime->settingsChanged();
 }
