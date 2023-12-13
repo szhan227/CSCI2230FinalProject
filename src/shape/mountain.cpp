@@ -139,7 +139,7 @@ glm::vec3 Mountain::getPosition(int row, int col) {
     }
     else if(distance <= 5.f){
         float coef = (distance * distance / 25.f);
-        coef = distance / 5.f;
+//        coef = distance / 5.f / 2;
         z *= coef;
         z -= 0.15;
     }
