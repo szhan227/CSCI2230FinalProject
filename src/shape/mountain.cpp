@@ -129,16 +129,33 @@ glm::vec3 Mountain::getPosition(int row, int col) {
 
     float z;
     z = getHeight(x, y);
+
+
+
+
     float distance = std::sqrt((x - center) * (x - center) + (y - center) * (y - center));
     if(distance <= 1.5f){
         z *= 5 * (1.5 - distance);
     }
-    else if(distance <= 3.f){
-        float coef = (distance * distance / 9.f);
-        coef = distance / 3.f;
+    else if(distance <= 5.f){
+        float coef = (distance * distance / 25.f);
+        coef = distance / 5.f;
         z *= coef;
         z -= 0.15;
     }
+    else if(std::abs(x - center) < 0.5f){
+        float dist = std::abs(x - center);
+        float coef = dist * dist / 0.25f;
+        z *= coef;
+        z -= 0.15f;
+    }else if(std::abs(y - center) < 0.5f){
+        float dist = std::abs(y - center);
+        float coef = dist * dist / 0.25f;
+        z *= coef;
+        z -= 0.15f;
+    }
+
+
     return glm::vec3(x - 0.5f * scale,y - 0.5f * scale,z);
 //    return glm::vec3(x, z, y);
 }
@@ -169,8 +186,8 @@ float Mountain::getHeight(float x, float y) {
 
     for(int i = 0; i < 5; i++){
         z += amplitude * computePerlin(x * frequency, y * frequency) / 2;
-        frequency *= 2;
-        amplitude /= 2;
+        frequency *= 4;
+        amplitude /= 4;
     }
     // Task 7: combine multiple different octaves of noise to produce fractal perlin noise
 
@@ -219,21 +236,31 @@ glm::vec3 Mountain::getColor(glm::vec3 normal, glm::vec3 position) {
 
     glm::vec3 white(1, 1, 1);
     glm::vec3 gray(0.5f, 0.5f, 0.5f);
-
+    glm::vec3 green(0.f, 0.3f, 0.f);
+    glm::vec3 blue(0.f, 0.f, 0.3f);
     glm::vec3 upRight(0, 0, 1);
+
 //    glm::vec3 upRight(0, 1, 0);
 
     glm::vec3 color(0.5f, 0.5f, 0.5f);
     color = glm::vec3(0.5f, 0.25f, 0.f);
-    if(position[2] > 0.25f){
-        color = glm::vec3(0.f, 0.3f, 0.f);
-    }
+//    if(position[2] > 0.25f){
+//        color = glm::vec3(0.f, 0.3f, 0.f);
+//    }
 
     float theta = std::acos(glm::dot(normal, upRight) / glm::length(normal) / glm::length(upRight));
+    theta = std::abs(theta);
 
-    if(std::abs(theta) < M_PI / 8){
+    if(theta < M_PI / 12 && position[2] > 0.2f){
 //        position[2] > 0.05f &&
-        color = white;
+//        color = white;
+        float eps = theta / M_PI;
+        color = eps * color + (1 - eps) * white;
+    }else if(position[2] > 1.f){
+        float eps = glm::clamp(5.f - position[2], 0.f, 4.f) / 4.f;
+        color = white * eps + color * (1 - eps);
+    }else if(theta < M_PI / 4 || position[2] > .5f){
+        color = green;
     }
     // Return white as placeholder
     return color;

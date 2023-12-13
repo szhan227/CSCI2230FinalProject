@@ -28,7 +28,7 @@ void main(void)
 
         vec2 textureCoord = vert.xy;
 
-        vec4 textureColor = texture(rockSampler, textureCoord);
+        vec4 textureColor = texture(rockSampler, textureCoord * 2);
 
         vec4 diffuse = lightColor * dot_n_li;
         float kd = 0.7f;
