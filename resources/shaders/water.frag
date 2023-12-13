@@ -68,7 +68,7 @@ void main()
     refraction_uv = clamp(refraction_uv, 0.001, 0.999);
     reflection_uv += distortion;
     reflection_uv.x = clamp(reflection_uv.x, 0.001, 0.999);
-    reflection_uv.y = clamp(reflection_uv.x, -0.999, -0.001);
+    reflection_uv.y = clamp(reflection_uv.y, -0.999, -0.001);
 
     vec4 refractionColor = texture(textureSampler1, refraction_uv);
     vec4 reflectionColor = texture(textureSampler2, reflection_uv);

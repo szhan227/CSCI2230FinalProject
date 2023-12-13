@@ -457,7 +457,7 @@ void Realtime::drawWater() {
     m_camera.flip();
     m_view = m_camera.getViewMatrix();
     m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 1000.f);
-//    drawMountain(glm::vec4(0.f,1.f,0.f,0.f));
+    drawMountain(glm::vec4(0.f,1.f,0.f,0.f));
     drawSky();
     // recover camera
     m_camera.flip();
