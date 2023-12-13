@@ -87,11 +87,12 @@ void Realtime::paintGL() {
     m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 1000.f);
     //TODO: Call individual paint_{mountain, terrain, water, sky} functions here
     glViewport(0, 0, m_w, m_h);
+    glEnable(GL_CLIP_DISTANCE0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    drawSky();
     drawWater();
+    drawSky();
     drawTerrain();
-    drawMountain();
+    drawMountain(glm::vec4(0.f,-1.f,0.f,10000.f));
 }
 
 void Realtime::resizeGL(int w, int h) {
@@ -369,7 +370,7 @@ void Realtime::initMountain() {
     //    glBindTexture(GL_TEXTURE_2D, m_mountain_grass_texture);
 
     // Load and set up the texture (you can put this in a separate function if needed)
-    QImage rockImage(":resources/images/rock3.jpg");
+    QImage rockImage(":/resources/images/rock3.jpg");
     rockImage = rockImage.convertToFormat(QImage::Format_RGBA8888);
 
     if (rockImage.isNull()) {
@@ -442,6 +443,30 @@ void Realtime::drawSky() {
 }
 
 void Realtime::drawWater() {
+    ////////////////////////////////////////////////////////
+    /// Reflaction
+    glBindFramebuffer(GL_FRAMEBUFFER, m_water_fbo.m_fbo);
+    glDrawBuffers(1, &attachments[0]);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    drawMountain(glm::vec4(0.f,-1.f,0.f,0.f));
+    ////////////////////////////////////////////////////////
+    /// Reflection
+    glDrawBuffers(1, &attachments[1]);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // set virtual camera
+    m_camera.flip();
+    m_view = m_camera.getViewMatrix();
+    m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 1000.f);
+//    drawMountain(glm::vec4(0.f,1.f,0.f,0.f));
+    drawSky();
+    // recover camera
+    m_camera.flip();
+    m_view = m_camera.getViewMatrix();
+    m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 1000.f);
+    ////////////////////////////////////////////////////////
+    glBindFramebuffer(GL_FRAMEBUFFER, m_defaultFBO);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_water_fbo.m_fbo_texture[0]);
     glActiveTexture(GL_TEXTURE1);
@@ -456,7 +481,11 @@ void Realtime::drawWater() {
     glUniformMatrix4fv(glGetUniformLocation(m_waterShader, "m_Matrix"), 1, GL_FALSE, &m_water_model[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(m_waterShader, "v_Matrix"), 1, GL_FALSE, &m_view[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(m_waterShader, "proj_Matrix"), 1, GL_FALSE, &m_proj[0][0]);
-    //    lights2shader(m_water_shader);
+    glUniform4fv(glGetUniformLocation(m_waterShader, "camera_pos"), 1, &(m_camera.get_eye()[0]));
+    glUniform4fv(glGetUniformLocation(m_waterShader, "myL.dir"), 1, &(m_lightDir[0]));
+
+    glm::vec4 tmp_light_color = glm::vec4(1, 237.f/255.f, 219.f/255.f, 1);
+    glUniform4fv(glGetUniformLocation(m_waterShader, "myL.color"), 1, &(tmp_light_color[0]));
     // movement
     water_time = std::modf(water_time+water_speed, &tmp_empty);
     glUniform1f(glGetUniformLocation(m_waterShader, "time_step"), water_time);
@@ -471,7 +500,7 @@ void Realtime::drawTerrain() {
     //TODO
 }
 
-void Realtime::drawMountain() {
+void Realtime::drawMountain(glm::vec4 plane) {
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glBindVertexArray(m_mountain_vao);
 
@@ -505,6 +534,8 @@ void Realtime::drawMountain() {
     glUniform1f(glGetUniformLocation(m_mountain_shader, "shininess"), m_shininess);
     glUniform4fv(glGetUniformLocation(m_mountain_shader, "cameraPosition"), 1, glm::value_ptr(invView[3]));
 
+    // add clip height for water rendering
+    glUniform4fv(glGetUniformLocation(m_mountain_shader, "plane"), 1, &(plane[0]));
 
     glDrawArrays(GL_TRIANGLES, 0, res * res * 6);
     glBindVertexArray(0);

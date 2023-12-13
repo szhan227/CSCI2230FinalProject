@@ -12,7 +12,7 @@ public:
 
     Mountain();
     ~Mountain();
-    int getResolution() { return m_resolution; };
+    int getResolution() { return m_resolution; }
     std::vector<float> generateMountain();
 
 private:

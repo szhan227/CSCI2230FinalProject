@@ -70,7 +70,7 @@ private:
     void drawSky();
     void drawWater();
     void drawTerrain();
-    void drawMountain();
+    void drawMountain(glm::vec4 plane);
 
     // Tick Related Variables
     int m_timer;                                        // Stores timer which attempts to run ~60 times per second
