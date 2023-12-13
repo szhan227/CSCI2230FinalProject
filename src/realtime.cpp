@@ -381,16 +381,6 @@ void Realtime::initMountain() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rockImage.width(), rockImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, rockImage.bits());
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    //    QImage grassImage("resources/terrainTexture.jpg");
-    //    grassImage = grassImage.convertToFormat(QImage::Format_RGBA8888);
-
-    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, grassImage.width(), grassImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, grassImage.bits());
-    //    glGenerateMipmap(GL_TEXTURE_2D);
-
-
-    // Set texture parameters if needed
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -495,11 +485,6 @@ void Realtime::drawMountain() {
     // Set the texture unit to the uniform in the shader
     GLuint rockTextureLocation = glGetUniformLocation(m_mountain_shader, "rockSampler");
     glUniform1i(rockTextureLocation, 0); // 0 corresponds to GL_TEXTURE0
-
-    //    GLuint grassTextureLocation = glGetUniformLocation(m_mountain_shader, "grassSampler");
-    //    glUniform1i(grassTextureLocation, 1); // 0 corresponds to GL_TEXTURE0
-
-
 
     glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "model"), 1, GL_FALSE, &m_sky_model[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "view"), 1, GL_FALSE, &m_view[0][0]);

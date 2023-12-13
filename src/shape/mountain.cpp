@@ -162,14 +162,14 @@ float Mountain::getHeight(float x, float y) {
     // input scale, the larger, the more frequent (number of peak and valley in a fixed area).
     // output scale, the larger, the more amplitude of the height and depth of peak nad valley.
 
-    float frequency = 3.f;
+    float frequency = 1.f;
     float amplitude = 1.5f;
     // Task 6: modify this call to produce noise of a different frequency
     float z = 0.f;
 
     for(int i = 0; i < 5; i++){
         z += amplitude * computePerlin(x * frequency, y * frequency) / 2;
-        //        frequency *= 2;
+        frequency *= 2;
         amplitude /= 2;
     }
     // Task 7: combine multiple different octaves of noise to produce fractal perlin noise
@@ -231,7 +231,7 @@ glm::vec3 Mountain::getColor(glm::vec3 normal, glm::vec3 position) {
 
     float theta = std::acos(glm::dot(normal, upRight) / glm::length(normal) / glm::length(upRight));
 
-    if(std::abs(theta) < M_PI / 4){
+    if(std::abs(theta) < M_PI / 8){
 //        position[2] > 0.05f &&
         color = white;
     }
