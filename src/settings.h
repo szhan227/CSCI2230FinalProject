@@ -19,6 +19,9 @@ struct Settings {
     bool summer = false;
     bool fall = false;
     bool winter = false;
+    bool show_mountain = false;
+    bool show_water = false;
+    bool show_sky = false;
 };
 
 

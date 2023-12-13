@@ -89,10 +89,15 @@ void Realtime::paintGL() {
     glViewport(0, 0, m_w, m_h);
     glEnable(GL_CLIP_DISTANCE0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    drawWater();
-    drawSky();
-    drawTerrain();
-    drawMountain(glm::vec4(0.f,-1.f,0.f,10000.f));
+
+    if(settings.show_water) drawWater();
+    if(settings.show_sky) drawSky();
+    
+    if(settings.show_mountain) drawMountain(glm::vec4(0.f,-1.f,0.f,10000.f));
+    // drawWater();
+    // drawSky();
+    // drawTerrain();
+    // drawMountain(glm::vec4(0.f,-1.f,0.f,10000.f));
 }
 
 void Realtime::resizeGL(int w, int h) {
@@ -122,7 +127,7 @@ void Realtime::settingsChanged() {
         m_mountain_kd = 0.85;
         m_mountain_ka = 0.1;
     }
-
+    std::cout << "the component toggle is " << settings.show_mountain << " " << settings.show_water << " " << settings.show_sky << std::endl;
     update(); // asks for a PaintGL() call to occur
 }
 
@@ -461,7 +466,7 @@ void Realtime::drawWater() {
     glBindFramebuffer(GL_FRAMEBUFFER, m_water_fbo.m_fbo);
     glDrawBuffers(1, &attachments[0]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    drawMountain(glm::vec4(0.f,-1.f,0.f,0.f));
+    if (settings.show_mountain) drawMountain(glm::vec4(0.f,-1.f,0.f,0.f));
     ////////////////////////////////////////////////////////
     /// Reflection
     glDrawBuffers(1, &attachments[1]);
@@ -470,8 +475,8 @@ void Realtime::drawWater() {
     m_camera.flip();
     m_view = m_camera.getViewMatrix();
     m_proj = m_camera.getProjMatrix(width(), height(), 0.1, 1000.f);
-    drawMountain(glm::vec4(0.f,1.f,0.f,0.f));
-    drawSky();
+    if (settings.show_mountain) drawMountain(glm::vec4(0.f,1.f,0.f,0.f));
+    if (settings.show_sky) drawSky();
     // recover camera
     m_camera.flip();
     m_view = m_camera.getViewMatrix();

@@ -177,6 +177,22 @@ void MainWindow::initialize() {
     winter->setText(QStringLiteral("Winter"));
     winter->setChecked(false);
 
+    QLabel *component_label = new QLabel(); // Parameters label
+    component_label->setText("Component");
+    component_label->setFont(font);
+
+    show_mountain = new QCheckBox();
+    show_mountain->setText(QStringLiteral("Mountain"));
+    show_mountain->setChecked(false);
+
+    show_water = new QCheckBox();
+    show_water->setText(QStringLiteral("Water"));
+    show_water->setChecked(false);
+
+    show_sky = new QCheckBox();
+    show_sky->setText(QStringLiteral("Sky"));
+    show_sky->setChecked(false);
+
     // vLayout->addWidget(uploadFile);
     // vLayout->addWidget(saveImage);
     vLayout->addWidget(tesselation_label);
@@ -202,6 +218,10 @@ void MainWindow::initialize() {
     // vLayout->addWidget(ec2);
     // vLayout->addWidget(ec3);
     // vLayout->addWidget(ec4);
+    vLayout->addWidget(component_label);
+    vLayout->addWidget(show_mountain);
+    vLayout->addWidget(show_water);
+    vLayout->addWidget(show_sky);
 
     connectUIElements();
 
@@ -230,6 +250,7 @@ void MainWindow::connectUIElements() {
     // connectFar();
     // connectExtraCredit();
     connectSeason();
+    connectComponent();
 }
 
 void MainWindow::connectPerPixelFilter() {
@@ -284,6 +305,27 @@ void MainWindow::connectSeason() {
     connect(summer, &QCheckBox::clicked, this, &MainWindow::onSummer);
     connect(fall, &QCheckBox::clicked, this, &MainWindow::onFall);
     connect(winter, &QCheckBox::clicked, this, &MainWindow::onWinter);
+}
+
+void MainWindow::connectComponent() {
+    connect(show_mountain, &QCheckBox::clicked, this, &MainWindow::onMountain);
+    connect(show_water, &QCheckBox::clicked, this, &MainWindow::onWater);
+    connect(show_sky, &QCheckBox::clicked, this, &MainWindow::onSky);
+}
+
+void MainWindow::onMountain() {
+    settings.show_mountain = !settings.show_mountain;
+    realtime->settingsChanged();
+}
+
+void MainWindow::onWater() {
+    settings.show_water = !settings.show_water;
+    realtime->settingsChanged();
+}
+
+void MainWindow::onSky() {
+    settings.show_sky = !settings.show_sky;
+    realtime->settingsChanged();
 }
 
 void MainWindow::onPerPixelFilter() {
