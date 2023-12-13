@@ -15,6 +15,10 @@ struct Settings {
     bool extraCredit2 = false;
     bool extraCredit3 = false;
     bool extraCredit4 = false;
+    bool spring = true;
+    bool summer = false;
+    bool fall = false;
+    bool winter = false;
 };
 
 

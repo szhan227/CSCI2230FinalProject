@@ -8,6 +8,8 @@ uniform bool wireshade;
 
 uniform sampler2D rockSampler;
 uniform sampler2D grassSampler;
+uniform float kd;
+uniform float ka;
 
 out vec4 fragColor;
 
@@ -23,7 +25,8 @@ void main(void)
         float dot_n_li = clamp(dot(norm.xyz, lightDir), 0, 1);
 
 
-        vec4 ambient = vec4((clamp(dot(norm.xyz, lightDir), 0, 1) * 0.7 +  0.3) * objColor, 1.0);
+        // vec4 ambient = vec4((clamp(dot(norm.xyz, lightDir), 0, 1) * 0.7 +  0.3) * objColor, 1.0);
+        vec4 ambient = vec4((clamp(dot(norm.xyz, lightDir), 0, 1) * ka +  (1-ka)) * objColor, 1.0);
         fragColor += ambient;
 
         vec2 textureCoord = vert.xy;
@@ -31,7 +34,7 @@ void main(void)
         vec4 textureColor = texture(rockSampler, textureCoord * 2);
 
         vec4 diffuse = lightColor * dot_n_li;
-        float kd = 0.7f;
+        // float kd = 0.7f;
         diffuse = textureColor * (1 - kd) + diffuse * kd;
         fragColor += diffuse;
     }

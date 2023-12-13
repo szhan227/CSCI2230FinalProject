@@ -28,6 +28,7 @@ private:
     void connectUploadFile();
     void connectSaveImage();
     void connectExtraCredit();
+    void connectSeason();
 
     Realtime *realtime;
     AspectRatioWidget *aspectRatioWidget;
@@ -50,6 +51,12 @@ private:
     QCheckBox *ec3;
     QCheckBox *ec4;
 
+    // Season Change:
+    QCheckBox *spring;
+    QCheckBox *summer;
+    QCheckBox *fall;
+    QCheckBox *winter;
+
 private slots:
     void onPerPixelFilter();
     void onKernelBasedFilter();
@@ -67,4 +74,10 @@ private slots:
     void onExtraCredit2();
     void onExtraCredit3();
     void onExtraCredit4();
+
+    // Season Change:
+    void onSpring();
+    void onSummer();
+    void onFall();
+    void onWinter();
 };

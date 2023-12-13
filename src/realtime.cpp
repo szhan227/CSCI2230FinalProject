@@ -109,6 +109,19 @@ void Realtime::sceneChanged() {
 }
 
 void Realtime::settingsChanged() {
+    if (settings.spring) {
+        m_mountain_kd = 0.7;
+        m_mountain_ka = 0.4;
+    } else if (settings.summer) {
+        m_mountain_kd = 0.75;
+        m_mountain_ka = 0.3;
+    } else if (settings.fall) {
+        m_mountain_kd = 0.8;
+        m_mountain_ka = 0.2;
+    } else if (settings.winter) {
+        m_mountain_kd = 0.85;
+        m_mountain_ka = 0.1;
+    }
 
     update(); // asks for a PaintGL() call to occur
 }
@@ -522,10 +535,10 @@ void Realtime::drawMountain(glm::vec4 plane) {
     glUniformMatrix4fv(glGetUniformLocation(m_mountain_shader, "mvMatrix"), 1, GL_FALSE, &mvMatrix[0][0]);
     glUniform1i(glGetUniformLocation(m_mountain_shader, "wireshade"), false);
 
-    glUniform1f(glGetUniformLocation(m_mountain_shader, "ka"), m_ka);
+    glUniform1f(glGetUniformLocation(m_mountain_shader, "ka"), m_mountain_ka);
 
     glUniform4fv(glGetUniformLocation(m_mountain_shader, "lightDir"), 1, glm::value_ptr(m_lightDir));
-    glUniform1f(glGetUniformLocation(m_mountain_shader, "kd"), m_kd);
+    glUniform1f(glGetUniformLocation(m_mountain_shader, "kd"), m_mountain_kd);
 
     glm::mat4 invView = glm::inverse(m_view);
     int res = m_mountain_generator.getResolution();

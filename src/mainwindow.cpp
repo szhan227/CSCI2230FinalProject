@@ -25,7 +25,7 @@ void MainWindow::initialize() {
     font.setPointSize(12);
     font.setBold(true);
     QLabel *tesselation_label = new QLabel(); // Parameters label
-    tesselation_label->setText("Time");
+    tesselation_label->setText("Season");
     tesselation_label->setFont(font);
     // QLabel *camera_label = new QLabel(); // Camera label
     // camera_label->setText("Camera");
@@ -36,8 +36,8 @@ void MainWindow::initialize() {
     // QLabel *ec_label = new QLabel(); // Extra Credit label
     // ec_label->setText("Extra Credit");
     // ec_label->setFont(font);
-    QLabel *param1_label = new QLabel(); // Parameter 1 label
-    param1_label->setText("time:");
+    // QLabel *param1_label = new QLabel(); // Parameter 1 label
+    // param1_label->setText("time:");
     // QLabel *param2_label = new QLabel(); // Parameter 2 label
     // param2_label->setText("Parameter 2:");
     // QLabel *near_label = new QLabel(); // Near plane label
@@ -61,8 +61,8 @@ void MainWindow::initialize() {
     // uploadFile = new QPushButton();
     // uploadFile->setText(QStringLiteral("Upload Scene File"));
     
-    saveImage = new QPushButton();
-    saveImage->setText(QStringLiteral("Save image"));
+    // saveImage = new QPushButton();
+    // saveImage->setText(QStringLiteral("Save image"));
 
     // Creates the boxes containing the parameter sliders and number boxes
     QGroupBox *p1Layout = new QGroupBox(); // horizonal slider 1 alignment
@@ -71,17 +71,17 @@ void MainWindow::initialize() {
     // QHBoxLayout *l2 = new QHBoxLayout();
 
     // Create slider controls to control parameters
-    p1Slider = new QSlider(Qt::Orientation::Horizontal); // Parameter 1 slider
-    p1Slider->setTickInterval(1);
-    p1Slider->setMinimum(1);
-    p1Slider->setMaximum(25);
-    p1Slider->setValue(1);
+    // p1Slider = new QSlider(Qt::Orientation::Horizontal); // Parameter 1 slider
+    // p1Slider->setTickInterval(1);
+    // p1Slider->setMinimum(1);
+    // p1Slider->setMaximum(25);
+    // p1Slider->setValue(1);
 
-    p1Box = new QSpinBox();
-    p1Box->setMinimum(1);
-    p1Box->setMaximum(25);
-    p1Box->setSingleStep(1);
-    p1Box->setValue(1);
+    // p1Box = new QSpinBox();
+    // p1Box->setMinimum(1);
+    // p1Box->setMaximum(25);
+    // p1Box->setSingleStep(1);
+    // p1Box->setValue(1);
 
     // p2Slider = new QSlider(Qt::Orientation::Horizontal); // Parameter 2 slider
     // p2Slider->setTickInterval(1);
@@ -96,9 +96,9 @@ void MainWindow::initialize() {
     // p2Box->setValue(1);
 
     // Adds the slider and number box to the parameter layouts
-    l1->addWidget(p1Slider);
-    l1->addWidget(p1Box);
-    p1Layout->setLayout(l1);
+    // l1->addWidget(p1Slider);
+    // l1->addWidget(p1Box);
+    // p1Layout->setLayout(l1);
 
     // l2->addWidget(p2Slider);
     // l2->addWidget(p2Box);
@@ -161,11 +161,31 @@ void MainWindow::initialize() {
     // ec4->setText(QStringLiteral("Extra Credit 4"));
     // ec4->setChecked(false);
 
+    spring = new QCheckBox();
+    spring->setText(QStringLiteral("Spring"));
+    spring->setChecked(true);
+
+    summer = new QCheckBox();
+    summer->setText(QStringLiteral("Summer"));
+    summer->setChecked(false);
+
+    fall = new QCheckBox();
+    fall->setText(QStringLiteral("Fall"));
+    fall->setChecked(false);
+
+    winter = new QCheckBox();
+    winter->setText(QStringLiteral("Winter"));
+    winter->setChecked(false);
+
     // vLayout->addWidget(uploadFile);
-    vLayout->addWidget(saveImage);
+    // vLayout->addWidget(saveImage);
     vLayout->addWidget(tesselation_label);
-    vLayout->addWidget(param1_label);
-    vLayout->addWidget(p1Layout);
+    // vLayout->addWidget(param1_label);
+    // vLayout->addWidget(p1Layout);
+    vLayout->addWidget(spring);
+    vLayout->addWidget(summer);
+    vLayout->addWidget(fall);
+    vLayout->addWidget(winter);
     // vLayout->addWidget(param2_label);
     // vLayout->addWidget(p2Layout);
     // vLayout->addWidget(camera_label);
@@ -186,7 +206,7 @@ void MainWindow::initialize() {
     connectUIElements();
 
     // Set default values of 5 for tesselation parameters
-    onValChangeP1(5);
+    // onValChangeP1(5);
     // onValChangeP2(5);
 
     // Set default values for near and far planes
@@ -203,12 +223,13 @@ void MainWindow::connectUIElements() {
     // connectPerPixelFilter();
     // connectKernelBasedFilter();
     // connectUploadFile();
-    connectSaveImage();
-    connectParam1();
+    // connectSaveImage();
+    // connectParam1();
     // connectParam2();
     // connectNear();
     // connectFar();
     // connectExtraCredit();
+    connectSeason();
 }
 
 void MainWindow::connectPerPixelFilter() {
@@ -256,6 +277,13 @@ void MainWindow::connectExtraCredit() {
     connect(ec2, &QCheckBox::clicked, this, &MainWindow::onExtraCredit2);
     connect(ec3, &QCheckBox::clicked, this, &MainWindow::onExtraCredit3);
     connect(ec4, &QCheckBox::clicked, this, &MainWindow::onExtraCredit4);
+}
+
+void MainWindow::connectSeason() {
+    connect(spring, &QCheckBox::clicked, this, &MainWindow::onSpring);
+    connect(summer, &QCheckBox::clicked, this, &MainWindow::onSummer);
+    connect(fall, &QCheckBox::clicked, this, &MainWindow::onFall);
+    connect(winter, &QCheckBox::clicked, this, &MainWindow::onWinter);
 }
 
 void MainWindow::onPerPixelFilter() {
@@ -372,5 +400,25 @@ void MainWindow::onExtraCredit3() {
 
 void MainWindow::onExtraCredit4() {
     settings.extraCredit4 = !settings.extraCredit4;
+    realtime->settingsChanged();
+}
+
+void MainWindow::onSpring() {
+    settings.spring = !settings.spring;
+    realtime->settingsChanged();
+}
+
+void MainWindow::onSummer() {
+    settings.summer = !settings.summer;
+    realtime->settingsChanged();
+}
+
+void MainWindow::onFall() {
+    settings.fall = !settings.fall;
+    realtime->settingsChanged();
+}
+
+void MainWindow::onWinter() {
+    settings.winter = !settings.winter;
     realtime->settingsChanged();
 }

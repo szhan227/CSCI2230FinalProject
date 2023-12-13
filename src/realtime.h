@@ -131,6 +131,9 @@ private:
     GLuint m_mountain_rock_texture;
     GLuint m_mountain_grass_texture;
 
+    float m_mountain_ka = 0.4f;
+    float m_mountain_kd = 0.7f;
+
     Mountain m_mountain_generator;
     std::vector<GLfloat> m_mountain_verts;
 
