@@ -27,4 +27,5 @@
     1. https://www.dreamstime.com/texture-earth-grass-cobblestones-stones-mountain-landscape-steppe-forest-steppe-earth-texture-green-grass-image134410782
     2. https://everytexture.com/everytexture-com-stock-nature-snow-00002/
     3. https://www.pinterest.com/pin/43276846407265774/
+    4. https://github.com/fede-vaccaro/TerrainEngine-OpenGL/blob/master/resources/rock3.jpg
 
