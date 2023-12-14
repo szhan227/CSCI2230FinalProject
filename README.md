@@ -19,7 +19,7 @@
 - Zekun Li: Water (Reflection & Refraction)
 - Ruiqi Xu: Terrain & Seasonal Changes
 - Zihan Zhu: Sky
-- 
+
 ### References
 - Sky: https://github.com/wwwtyro/glsl-atmosphere/
 - Water: https://www.youtube.com/watch?v=HusvGeEDU_U&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh
