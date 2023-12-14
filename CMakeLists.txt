@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Sets project name
-project(Geocraft LANGUAGES CXX C)
+project(projects_realtime LANGUAGES CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -14,10 +15,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Specifies required Qt components
 find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Gui)
 find_package(Qt6 REQUIRED COMPONENTS OpenGL)
 find_package(Qt6 REQUIRED COMPONENTS OpenGLWidgets)
-find_package(Qt6 REQUIRED COMPONENTS Gui)
+find_package(Qt6 REQUIRED COMPONENTS Xml)
 
 # Allows you to include files from within those directories, without prefixing their filepaths
 include_directories(src)
@@ -25,22 +26,36 @@ include_directories(src)
 # Specifies .cpp and .h files to be passed to the compiler
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    src/glrenderer.cpp
-    src/mainwindow.cpp
 
-    src/glrenderer.h
+    src/realtime.cpp
+    src/mainwindow.cpp
+    src/settings.cpp
+    src/utils/scenefilereader.cpp
+    src/utils/sceneparser.cpp
+
     src/mainwindow.h
-    src/shaderloader.h
-    src/utils/shape.h src/utils/shape.cpp
+    src/realtime.h
+    src/settings.h
+    src/utils/scenedata.h
+    src/utils/scenefilereader.h
+    src/utils/sceneparser.h
+    src/utils/shaderloader.h
+    src/utils/aspectratiowidget/aspectratiowidget.hpp
+
+    # added files
+    src/camera/camera.cpp
+    src/camera/camera.h
+
+    src/shape/sphere.cpp
+    src/shape/sphere.h
+    src/shape/water.h
+    src/shape/water.cpp
+    src/shape/mountain.h
+    src/shape/mountain.cpp
 )
-# Specifies other files
-qt_add_resources(${PROJECT_NAME} "Resources"
-  PREFIX
-  "/"
-  FILES
-  resources/shaders/sky.vert
-  resources/shaders/sky.frag
-)
+
+# GLM: this creates its library and allows you to `#include "glm/..."`
+add_subdirectory(glm)
 
 # GLEW: this creates its library and allows you to `#include "GL/glew.h"`
 add_library(StaticGLEW STATIC glew/src/glew.c)
@@ -48,12 +63,33 @@ include_directories(${PROJECT_NAME} PRIVATE glew/include)
 
 # Specifies libraries to be linked (Qt components, glew, etc)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-  Qt::Core
-  Qt::Widgets
-  Qt::OpenGL
-  Qt::OpenGLWidgets
-  Qt::Gui
-  StaticGLEW
+    Qt::Core
+    Qt::Gui
+    Qt::OpenGL
+    Qt::OpenGLWidgets
+    Qt::Xml
+    StaticGLEW
+)
+
+# Specifies other files
+qt6_add_resources(${PROJECT_NAME} "Resources"
+    PREFIX
+        "/"
+    FILES
+        resources/shaders/default.frag
+        resources/shaders/default.vert
+        resources/shaders/sky.vert
+        resources/shaders/sky.frag
+        resources/shaders/water.frag
+        resources/shaders/water.vert
+        resources/shaders/mountain.frag
+        resources/shaders/mountain.vert
+        resources/images/waterDUDV.png
+        resources/images/normalMap.png
+        resources/images/spring.png
+        resources/images/summer.jpg
+        resources/images/fall.jpg
+        resources/images/winter.jpg
 )
 
 # GLEW: this provides support for Windows (including 64-bit)
@@ -69,7 +105,6 @@ endif()
 if (MSVC OR MSYS OR MINGW)
   set(CMAKE_CXX_FLAGS "-Wno-volatile")
 endif()
-
 # Set this flag to silence warnings on MacOS
 if (APPLE)
   set(CMAKE_CXX_FLAGS "-Wno-deprecated-volatile")

@@ -1,4 +1,4 @@
-#include "shape.h"
+#include "sphere.h"
 #include "glm/gtc/constants.hpp"
 
 Sphere::Sphere(int phiTesselations, int thetaTesselations) {
@@ -27,12 +27,12 @@ void Sphere::generateSphereData(int phiTesselations, int thetaTesselations) {
             glm::vec4 p4 = sphericalToCartesian(phi1,the2);
 
             pushVec3(p1,&data);
-            pushVec3(p2,&data);
             pushVec3(p3,&data);
+            pushVec3(p2,&data);
 
             pushVec3(p1,&data);
-            pushVec3(p3,&data);
             pushVec3(p4,&data);
+            pushVec3(p3,&data);
         }
     }
 }
