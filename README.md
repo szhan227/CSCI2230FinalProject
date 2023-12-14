@@ -23,3 +23,8 @@
 ### References
 - Sky: https://github.com/wwwtyro/glsl-atmosphere/
 - Water: https://www.youtube.com/watch?v=HusvGeEDU_U&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh
+- Texture Maps: 
+    1. https://www.dreamstime.com/texture-earth-grass-cobblestones-stones-mountain-landscape-steppe-forest-steppe-earth-texture-green-grass-image134410782
+    2. https://everytexture.com/everytexture-com-stock-nature-snow-00002/
+    3. https://www.pinterest.com/pin/43276846407265774/
+
