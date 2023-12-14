@@ -22,6 +22,8 @@ struct Settings {
     bool show_mountain = false;
     bool show_water = false;
     bool show_sky = false;
+    int prev_season = 0;
+    int current_season = 0;
 };
 
 

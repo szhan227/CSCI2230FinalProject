@@ -13,7 +13,7 @@ public:
     Mountain();
     ~Mountain();
     int getResolution() { return m_resolution; }
-    std::vector<float> generateMountain();
+    std::vector<float> generateMountain(int season);
 
 private:
 
@@ -39,7 +39,7 @@ private:
     glm::vec3 getNormal(int row, int col);
 
     // Computes color of vertex using normal and, optionally, position
-    glm::vec3 getColor(glm::vec3 normal, glm::vec3 position);
+    glm::vec3 getColor(glm::vec3 normal, glm::vec3 position, int season);
 
     // Computes the intensity of Perlin noise at some point
     float computePerlin(float x, float y);

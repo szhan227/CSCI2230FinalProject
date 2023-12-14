@@ -86,8 +86,10 @@ qt6_add_resources(${PROJECT_NAME} "Resources"
         resources/shaders/mountain.vert
         resources/images/waterDUDV.png
         resources/images/normalMap.png
-        resources/images/rock3.jpg
-        resources/images/terrainTexture.jpg
+        resources/images/spring.png
+        resources/images/summer.jpg
+        resources/images/fall.jpg
+        resources/images/winter.jpg
 )
 
 # GLEW: this provides support for Windows (including 64-bit)

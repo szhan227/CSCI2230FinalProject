@@ -64,7 +64,7 @@ private:
     void initSky();
     void initWater();
     void initTerrain();
-    void initMountain();
+    void initMountain(int season);
     
     // Draw functions
     void drawSky();
@@ -130,6 +130,9 @@ private:
     GLuint  m_mountain_vbo;
     GLuint m_mountain_rock_texture;
     GLuint m_mountain_grass_texture;
+    GLuint m_mountain_summer_texture;
+    GLuint m_mountain_fall_texture;
+    GLuint m_mountain_winter_texture;
 
     float m_mountain_ka = 0.4f;
     float m_mountain_kd = 0.7f;

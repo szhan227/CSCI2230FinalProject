@@ -50,7 +50,7 @@ void addColorToVector(glm::vec3 color, std::vector<float>& vector){
 }
 
 // Generates the geometry of the output triangle mesh
-std::vector<float> Mountain::generateMountain() {
+std::vector<float> Mountain::generateMountain(int season) {
     std::vector<float> verts;
     verts.reserve(m_resolution * m_resolution * 6);
 
@@ -78,15 +78,15 @@ std::vector<float> Mountain::generateMountain() {
             // x2y2z3
             addPointToVector(p1, verts);
             addPointToVector(n1, verts);
-            addColorToVector(getColor(n1, p1), verts);
+            addColorToVector(getColor(n1, p1, season), verts);
 
             addPointToVector(p2, verts);
             addPointToVector(n2, verts);
-            addColorToVector(getColor(n2, p2), verts);
+            addColorToVector(getColor(n2, p2, season), verts);
 
             addPointToVector(p3, verts);
             addPointToVector(n3, verts);
-            addColorToVector(getColor(n3, p3), verts);
+            addColorToVector(getColor(n3, p3, season), verts);
 
             // tris 2
             // x1y1z1
@@ -94,15 +94,15 @@ std::vector<float> Mountain::generateMountain() {
             // x1y2z4
             addPointToVector(p1, verts);
             addPointToVector(n1, verts);
-            addColorToVector(getColor(n1, p1), verts);
+            addColorToVector(getColor(n1, p1, season), verts);
 
             addPointToVector(p3, verts);
             addPointToVector(n3, verts);
-            addColorToVector(getColor(n3, p3), verts);
+            addColorToVector(getColor(n3, p3, season), verts);
 
             addPointToVector(p4, verts);
             addPointToVector(n4, verts);
-            addColorToVector(getColor(n4, p4), verts);
+            addColorToVector(getColor(n4, p4, season), verts);
         }
     }
     return verts;
@@ -229,7 +229,7 @@ glm::vec3 Mountain::getNormal(int row, int col) {
 }
 
 // Computes color of vertex using normal and, optionally, position
-glm::vec3 Mountain::getColor(glm::vec3 normal, glm::vec3 position) {
+glm::vec3 Mountain::getColor(glm::vec3 normal, glm::vec3 position, int season) {
     // Task 10: compute color as a function of the normal and position
 
 //    normal = glm::vec3(normal.x, normal.z, normal.y);
@@ -262,6 +262,29 @@ glm::vec3 Mountain::getColor(glm::vec3 normal, glm::vec3 position) {
     }else if(theta < M_PI / 4 || position[2] > .5f){
         color = green;
     }
+
+    // if (season == 3) { // winter
+    //     if (position[2] > 0.1f) {
+    //         color = glm::vec3(1.f, 1.f, 1.f);
+    //     }
+    // }
+
+    // if (season == 2) { // fall
+    //     // more red and yellow
+    //     if (position[2] > 0.1f && position[2] < 0.5f) {
+    //         color = glm::vec3(1.f, 0.5f, 0.f);
+    //     } else if (position[2] > 0.5f && position[2] < 0.7f) {
+    //         color = glm::vec3(1.f, 0.f, 0.f);
+    //     } else if (position[2] > 1.7f) {
+    //         color = glm::vec3(1.f, 1.f, 1.f);
+    //     }
+    // }
+
+    // if (season == 1) { // summer
+    //     // make the color overall more green by adding random green
+    //     float random_green = std::rand() * 2.0 / RAND_MAX - 1.0;
+    //     color += glm::vec3(0.f, 0.1f * random_green, 0.f);
+    // }
     // Return white as placeholder
     return color;
 }

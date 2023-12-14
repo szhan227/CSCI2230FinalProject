@@ -71,7 +71,7 @@ void Realtime::initializeGL() {
     initSky();
     initWater();
     initTerrain();
-    initMountain();
+    initMountain(settings.current_season);
 
     // set camera
     SceneCameraData init_camera;
@@ -115,19 +115,31 @@ void Realtime::sceneChanged() {
 
 void Realtime::settingsChanged() {
     if (settings.spring) {
-        m_mountain_kd = 0.7;
-        m_mountain_ka = 0.4;
+        m_mountain_kd = 0.65;
+        m_mountain_ka = 0.6;
+        settings.current_season = 0;
     } else if (settings.summer) {
         m_mountain_kd = 0.75;
-        m_mountain_ka = 0.3;
+        m_mountain_ka = 0.4;
+        settings.current_season = 1;
     } else if (settings.fall) {
-        m_mountain_kd = 0.8;
-        m_mountain_ka = 0.2;
+        m_mountain_kd = 0.75;
+        m_mountain_ka = 0.6;
+        settings.current_season = 2;
     } else if (settings.winter) {
-        m_mountain_kd = 0.85;
-        m_mountain_ka = 0.1;
+        m_mountain_kd = 0.8;
+        m_mountain_ka = 0.7;
+        settings.current_season = 3;
     }
-    std::cout << "the component toggle is " << settings.show_mountain << " " << settings.show_water << " " << settings.show_sky << std::endl;
+
+    if (settings.current_season != settings.prev_season) {
+        // m_mountain_verts = m_mountain_generator.generateMountain(settings.current_season);
+        // glBindBuffer(GL_ARRAY_BUFFER, m_mountain_vbo);
+        // glBufferData(GL_ARRAY_BUFFER,m_mountain_verts.size() * sizeof(GLfloat),m_mountain_verts.data(), GL_STATIC_DRAW);
+        // glBindBuffer(GL_ARRAY_BUFFER,0);
+        // initMountain(settings.current_season);
+        settings.prev_season = settings.current_season;
+    }
     update(); // asks for a PaintGL() call to occur
 }
 
@@ -374,43 +386,85 @@ void Realtime::initTerrain() {
     //TODO
 }
 
-void Realtime::initMountain() {
+void Realtime::initMountain(int season) {
     m_mountain_shader = ShaderLoader::createShaderProgram(":/resources/shaders/mountain.vert", ":/resources/shaders/mountain.frag");
 
     glGenBuffers(1, &m_mountain_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_mountain_vbo);
 
-
+    // spring texture
     glGenTextures(1, &m_mountain_rock_texture);
     glBindTexture(GL_TEXTURE_2D, m_mountain_rock_texture);
-
-    //    glGenTextures(1, &m_mountain_grass_texture);
-    //    glBindTexture(GL_TEXTURE_2D, m_mountain_grass_texture);
-
-    // Load and set up the texture (you can put this in a separate function if needed)
-    QImage rockImage(":/resources/images/rock3.jpg");
+    QImage rockImage(":/resources/images/spring.png");
     rockImage = rockImage.convertToFormat(QImage::Format_RGBA8888);
-
     if (rockImage.isNull()) {
-        qDebug() << "Failed to load image.";
+        qDebug() << "Failed to load image for spring.";
     } else {
-        qDebug() << "Image loaded successfully. Width:" << rockImage.width() << "Height:" << rockImage.height();
+        qDebug() << "Spring Image loaded successfully. Width:" << rockImage.width() << "Height:" << rockImage.height();
     }
-
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, rockImage.width(), rockImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, rockImage.bits());
     glGenerateMipmap(GL_TEXTURE_2D);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Unbind the texture
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    // summer texture
+    glGenTextures(1, &m_mountain_summer_texture);
+    glBindTexture(GL_TEXTURE_2D, m_mountain_summer_texture);
+    QImage summerImage(":/resources/images/summer.jpg");
+    summerImage = summerImage.convertToFormat(QImage::Format_RGBA8888);
+    if (summerImage.isNull()) {
+        qDebug() << "Failed to load image for summer.";
+    } else {
+        qDebug() << "Summer Image loaded successfully. Width:" << summerImage.width() << "Height:" << summerImage.height();
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, summerImage.width(), summerImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, summerImage.bits());
+    glGenerateMipmap(GL_TEXTURE_2D);    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D,0);
 
+    // fall texture
+    glGenTextures(1, &m_mountain_fall_texture);
+    glBindTexture(GL_TEXTURE_2D, m_mountain_fall_texture);
+    QImage fallImage(":/resources/images/fall.jpg");
+    fallImage = fallImage.convertToFormat(QImage::Format_RGBA8888);
+    if (fallImage.isNull()) {
+        qDebug() << "Failed to load image for fall.";
+    } else {
+        qDebug() << "Fall Image loaded successfully. Width:" << fallImage.width() << "Height:" << fallImage.height();
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fallImage.width(), fallImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, fallImage.bits());
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D,0);
 
-    m_mountain_verts = m_mountain_generator.generateMountain();
+    // winter texture
+    glGenTextures(1, &m_mountain_winter_texture);
+    glBindTexture(GL_TEXTURE_2D, m_mountain_winter_texture);
+    QImage winterImage(":/resources/images/winter.jpg");
+    winterImage = winterImage.convertToFormat(QImage::Format_RGBA8888);
+    if (winterImage.isNull()) {
+        qDebug() << "Failed to load image for winter.";
+    } else {
+        qDebug() << "Winter Image loaded successfully. Width:" << winterImage.width() << "Height:" << winterImage.height();
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, winterImage.width(), winterImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, winterImage.bits());
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D,0);
+
+    m_mountain_verts = m_mountain_generator.generateMountain(season);
 
     glBufferData(GL_ARRAY_BUFFER,m_mountain_verts.size() * sizeof(GLfloat),m_mountain_verts.data(), GL_STATIC_DRAW);
     glGenVertexArrays(1, &m_mountain_vao);
@@ -527,7 +581,16 @@ void Realtime::drawMountain(glm::vec4 plane) {
 
     // Bind the texture to a texture unit
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_mountain_rock_texture);  // Use the texture created during initialization
+    if (settings.spring) {
+        glBindTexture(GL_TEXTURE_2D, m_mountain_rock_texture);
+    } else if (settings.summer) {
+        glBindTexture(GL_TEXTURE_2D, m_mountain_summer_texture);
+    } else if (settings.fall) {
+        glBindTexture(GL_TEXTURE_2D, m_mountain_fall_texture);
+    } else if (settings.winter) {
+        glBindTexture(GL_TEXTURE_2D, m_mountain_winter_texture);
+    }
+    
 
     // Set the texture unit to the uniform in the shader
     GLuint rockTextureLocation = glGetUniformLocation(m_mountain_shader, "rockSampler");
@@ -551,6 +614,7 @@ void Realtime::drawMountain(glm::vec4 plane) {
     glUniform1f(glGetUniformLocation(m_mountain_shader, "ks"), m_ks);
     glUniform1f(glGetUniformLocation(m_mountain_shader, "shininess"), m_shininess);
     glUniform4fv(glGetUniformLocation(m_mountain_shader, "cameraPosition"), 1, glm::value_ptr(invView[3]));
+    glUniform1i(glGetUniformLocation(m_mountain_shader, "season"), settings.current_season);
 
     // add clip height for water rendering
     glUniform4fv(glGetUniformLocation(m_mountain_shader, "plane"), 1, &(plane[0]));
